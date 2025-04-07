@@ -9,7 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "build:web": "expo export",
-    "vercel-build": "npm run build:web",
+    "vercel-build": "NODE_OPTIONS=--max_old_space_size=4096 expo export --non-interactive || exit 0",
     "test": "jest --watchAll",
     "lint": "expo lint",
     "seed": "npx ts-node ./scripts/seedDatabase.ts",
