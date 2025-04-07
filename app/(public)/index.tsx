@@ -100,9 +100,7 @@ const HomePage = () => {
       <View style={styles.heroContainer}>
         <View style={styles.heroOverlay} />
         <View style={styles.heroContent}>
-          <Text variant="h1" weight="bold" style={styles.heroTitle}>
-            Academic Excellence{"\n"}Made Simple1
-          </Text>
+          
           <Text style={styles.heroSubtitle}>
             Professional assistance for your academic journeysssss
           </Text>
