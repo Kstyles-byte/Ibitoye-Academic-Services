@@ -9,7 +9,6 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "build:web": "expo export",
-    "vercel-build": "NODE_OPTIONS=--max_old_space_size=4096 expo export --output-dir dist --non-interactive || (mkdir -p dist && echo '<html><body><h1>Build in Progress</h1></body></html>' > dist/index.html && ls -la dist)",
     "test": "jest --watchAll",
     "lint": "expo lint",
     "seed": "npx ts-node ./scripts/seedDatabase.ts",
