@@ -3,13 +3,15 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 import { Platform } from 'react-native';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import AppProvider from '@/app/providers/AppProvider';
 import { initializeStorage } from '@/app/lib/storage/storageInit';
+import { DebugInfo } from '@/app/components/UI/DebugInfo';
+import { ForceSVGIcons } from '@/app/components/UI/ForceSVGIcons';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -69,6 +71,8 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
+  // State to control debug component visibility
+  const [showDebug] = useState(Platform.OS === 'web');
 
   useEffect(() => {
     async function prepare() {
@@ -113,6 +117,8 @@ export default function RootLayout() {
           <Stack.Screen name="(public)" options={{ headerShown: false }} />
         </Stack>
         <StatusBar style="auto" />
+        <DebugInfo show={showDebug} />
+        <ForceSVGIcons />
       </ThemeProvider>
     </AppProvider>
   );

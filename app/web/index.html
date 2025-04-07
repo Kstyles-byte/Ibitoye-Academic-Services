@@ -8,95 +8,93 @@
   <!-- Preconnect to CDNs for faster loading -->
   <link rel="preconnect" href="https://unpkg.com">
   
-  <!-- Lucide icons support - load specific version to avoid issues -->
-  <script src="https://unpkg.com/lucide@0.244.0/dist/umd/lucide.min.js"></script>
-  
-  <!-- Emergency script to fix icon issues -->
+  <!-- Inline script for SVG icon support -->
   <script>
+    // We're using direct SVG rendering instead of Lucide library
+    console.log('[ICONS_SYSTEM] Using direct SVG rendering instead of Lucide library');
+    
+    // Mock the lucide global to prevent errors
+    window.lucide = {
+      createIcons: function() {
+        console.log('[ICONS_SYSTEM] Mock Lucide.createIcons called');
+        return true;
+      }
+    };
+    
     // Create a global variable to store if icons have been initialized
-    window._iconsInitialized = false;
+    window._iconsInitialized = true;
     
-    // Function to manually reinitialize icons
-    window.reinitIcons = function() {
-      try {
-        if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
-          console.log('[EMERGENCY] Manually reinitializing icons...');
-          lucide.createIcons();
-          console.log('[EMERGENCY] Icons reinitialized successfully');
-          return true;
-        } else {
-          console.error('[EMERGENCY] Lucide library not available');
-          return false;
-        }
-      } catch (e) {
-        console.error('[EMERGENCY] Error reinitializing icons:', e);
-        return false;
-      }
+    // Debug utilities for icon troubleshooting
+    window.iconDebugLog = [];
+    window.logIconEvent = function(event, details) {
+      const timestamp = new Date().toISOString();
+      const logEntry = { timestamp, event, details };
+      window.iconDebugLog.push(logEntry);
+      console.log(`[ICON_DEBUG] ${event}`, details);
     };
     
-    // Emergency script that runs after a delay to ensure icons are loaded
-    setTimeout(function() {
-      if (!window._iconsInitialized) {
-        console.log('[EMERGENCY] Attempting delayed icon initialization');
-        window.reinitIcons();
-        window._iconsInitialized = true;
-      }
-    }, 2000);
-  </script>
-  
-  <!-- Debug logging for icon loading -->
-  <script>
-    // Enhanced console logging for debugging
-    const originalLog = console.log;
-    const originalError = console.error;
-    const originalWarn = console.warn;
-    
-    // Log important events to help debug issues
-    console.log = function(...args) {
-      if (args[0] && typeof args[0] === 'string' && 
-         (args[0].includes('icon') || args[0].includes('Icon') || args[0].includes('storage'))) {
-        args.unshift('[DEBUG]');
-      }
-      originalLog.apply(console, args);
-    };
-    
-    console.error = function(...args) {
-      args.unshift('[ERROR]');
-      originalError.apply(console, args);
-    };
-    
-    console.warn = function(...args) {
-      args.unshift('[WARN]');
-      originalWarn.apply(console, args);
-    };
-    
-    // Fix for SVG icons in React Native Web
+    // Add listener for DOM content loaded to track when the DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
-      console.log('[ICONS] DOM content loaded, initializing lucide icons');
+      window.logIconEvent('DOMContentLoaded', { timeStamp: performance.now() });
       
-      try {
-        // Initialize any Lucide icons that might be in the DOM
-        lucide.createIcons();
-        console.log('[ICONS] Lucide icons initialized successfully');
-        window._iconsInitialized = true;
-        
-        // Add a mutation observer to catch dynamically added icons
-        const observer = new MutationObserver(function(mutations) {
-          console.log('[ICONS] DOM mutations detected, recreating icons');
-          lucide.createIcons();
+      // Setup mutation observer to detect icon insertion
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'childList') {
+            const addedSvgs = Array.from(mutation.addedNodes).filter(node => 
+              node.nodeName === 'svg' || (node.querySelectorAll && node.querySelectorAll('svg').length > 0)
+            );
+            
+            if (addedSvgs.length > 0) {
+              window.logIconEvent('SVGElementsAdded', { 
+                count: addedSvgs.length,
+                location: mutation.target.nodeName + (mutation.target.id ? '#' + mutation.target.id : '')
+              });
+            }
+          }
         });
+      });
+      
+      // Observer configuration
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+      
+      // Expose debug function to window
+      window.debugIcons = function() {
+        const svgs = document.querySelectorAll('svg');
+        window.logIconEvent('SVGCount', { count: svgs.length });
         
-        // Start observing the document with the configured parameters
-        observer.observe(document.body, { 
-          childList: true,
-          subtree: true,
-          attributes: true,
-          attributeFilter: ['data-lucide']
-        });
-        console.log('[ICONS] Mutation observer started');
-      } catch (e) {
-        console.error('[ICONS] Error initializing Lucide icons:', e);
-      }
+        const svgContainers = document.querySelectorAll('.svg-icon-container');
+        window.logIconEvent('SVGContainers', { count: svgContainers.length });
+        
+        // Check if the Lucide library is available
+        const hasLucide = typeof window.lucide !== 'undefined';
+        window.logIconEvent('LucideAvailable', { available: hasLucide });
+        
+        // Log the full debug history to console
+        console.table(window.iconDebugLog);
+        
+        return {
+          svgCount: svgs.length,
+          containers: svgContainers.length,
+          hasLucide: hasLucide,
+          log: window.iconDebugLog
+        };
+      };
+      
+      // Debug run after a delay
+      setTimeout(function() {
+        window.debugIcons();
+      }, 2000);
+    });
+    
+    // Log when window is fully loaded
+    window.addEventListener('load', function() {
+      window.logIconEvent('WindowLoaded', { timeStamp: performance.now() });
+      // Run debug after window is fully loaded
+      setTimeout(window.debugIcons, 500);
     });
   </script>
   
@@ -109,26 +107,37 @@
       overflow: hidden;
     }
     
-    /* Basic SVG icon styling */
+    /* SVG icon styles for better compatibility */
     svg {
-      vertical-align: middle;
       display: inline-block !important;
-    }
-    
-    /* Fix for SVG icons in React Native Web */
-    [data-lucide] {
+      vertical-align: middle;
       width: 1em;
       height: 1em;
-      stroke-width: 2;
-      stroke: currentColor;
-      fill: none;
     }
     
-    /* Manual icon styling to force visibility */
-    .icon-wrapper svg {
-      display: inline !important;
-      visibility: visible !important;
-      opacity: 1 !important;
+    /* Make sure SVGs inherit parent element's color */
+    svg {
+      color: inherit;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    
+    /* Make sure SVG containers display properly */
+    .svg-icon-container {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+    
+    /* Ensure correct dimensions */
+    .svg-icon-container svg {
+      width: 100%;
+      height: 100%;
     }
   </style>
   
@@ -137,20 +146,5 @@
 </head>
 <body>
   <div id="root"></div>
-  
-  <!-- Load manual icon check after the app has had time to render -->
-  <script>
-    // Final check to ensure icons are initialized
-    window.addEventListener('load', function() {
-      setTimeout(function() {
-        if (document.querySelectorAll('[data-lucide]').length === 0) {
-          console.log('[FINAL CHECK] No Lucide icons found in the DOM, attempting to reinitialize...');
-          window.reinitIcons();
-        } else {
-          console.log('[FINAL CHECK] Found Lucide icons in the DOM, no need to reinitialize');
-        }
-      }, 3000);
-    });
-  </script>
 </body>
 </html> 
