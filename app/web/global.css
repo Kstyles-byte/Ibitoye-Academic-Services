@@ -1,18 +1,32 @@
 /* Icon font definitions */
 @font-face {
   font-family: 'Ionicons';
-  src: url('https://cdn.jsdelivr.net/npm/ionicons@5.5.1/dist/fonts/ionicons.woff2') format('woff2'),
-       url('https://cdn.jsdelivr.net/npm/ionicons@5.5.1/dist/fonts/ionicons.woff') format('woff'),
-       url('https://cdn.jsdelivr.net/npm/ionicons@5.5.1/dist/fonts/ionicons.ttf') format('truetype');
+  src: url('https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/fonts/ionicons.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/fonts/ionicons.woff') format('woff'),
+       url('https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/fonts/ionicons.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: block;
 }
 
+/* Expo Vector Icons font faces */
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/webfonts/fa-solid-900.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'MaterialIcons';
+  src: url('https://fonts.gstatic.com/s/materialicons/v140/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* Ensure icon elements display correctly */
-.ionicon {
+.ionicon, .fa, .material-icons {
   display: inline-block;
-  font-family: 'Ionicons' !important;
   speak: never;
   font-style: normal;
   font-weight: normal;
@@ -23,9 +37,44 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.ionicon {
+  font-family: 'Ionicons' !important;
+}
+
+.fa {
+  font-family: 'FontAwesome' !important;
+}
+
+.material-icons {
+  font-family: 'MaterialIcons' !important;
+}
+
 /* Make sure dark mode doesn't affect icon colors */
 @media (prefers-color-scheme: dark) {
-  .ionicon {
+  .ionicon, .fa, .material-icons {
     color: inherit !important;
   }
+}
+
+/* Specific fixes for Expo Vector Icons in React Native Web */
+[class^="Ionicons-"], 
+[class*=" Ionicons-"] {
+  font-family: 'Ionicons' !important;
+}
+
+[class^="FontAwesome-"], 
+[class*=" FontAwesome-"] {
+  font-family: 'FontAwesome' !important;
+}
+
+[class^="MaterialIcons-"], 
+[class*=" MaterialIcons-"] {
+  font-family: 'MaterialIcons' !important;
+}
+
+/* Force icon rendering regardless of display settings */
+.expo-vector-icon {
+  font-family: inherit !important;
+  visibility: visible !important;
+  display: inline !important;
 } 

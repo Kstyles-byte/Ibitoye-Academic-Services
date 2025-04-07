@@ -5,22 +5,35 @@
   <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   
-  <!-- Explicitly include the icon fonts from CDN -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@expo/vector-icons@14.0.0/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ionicons@5.5.1/dist/css/ionicons.min.css" />
+  <!-- Preconnect to CDNs for faster loading -->
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
   
-  <!-- You can replace this with your app name -->
-  <title>Academic Lessons</title>
+  <!-- Preload critical icon fonts -->
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/fonts/ionicons.woff2" as="font" type="font/woff2" crossorigin>
+  
+  <!-- Properly include vector icon fonts -->
+  <link href="https://unpkg.com/ionicons@5.5.2/dist/css/ionicons.min.css" rel="stylesheet">
+  
+  <!-- Explicit font loading for Expo Vector Icons -->
   <style>
-    /* Make sure the Ionicons font is properly loaded */
+    /* Load Ionicons font explicitly */
     @font-face {
       font-family: 'Ionicons';
-      src: url('https://cdn.jsdelivr.net/npm/ionicons@5.5.1/dist/fonts/ionicons.woff2') format('woff2'),
-           url('https://cdn.jsdelivr.net/npm/ionicons@5.5.1/dist/fonts/ionicons.woff') format('woff'),
-           url('https://cdn.jsdelivr.net/npm/ionicons@5.5.1/dist/fonts/ionicons.ttf') format('truetype');
+      src: url('https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/fonts/ionicons.woff2') format('woff2'),
+           url('https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/fonts/ionicons.woff') format('woff'),
+           url('https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/fonts/ionicons.ttf') format('truetype');
       font-weight: normal;
       font-style: normal;
       font-display: block;
+    }
+
+    /* Load Expo Vector Icons manually */
+    @font-face {
+      font-family: 'FontAwesome';
+      src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/webfonts/fa-solid-900.ttf') format('truetype');
     }
     
     /* Force fullscreen and remove margins */
@@ -35,7 +48,15 @@
     .ionicon, i[class*="icon-"] {
       color: inherit !important;
     }
+    
+    /* Fix for Expo Vector Icons in web */
+    span[class^="Ionicons-"] {
+      font-family: 'Ionicons' !important;
+    }
   </style>
+  
+  <!-- You can replace this with your app name -->
+  <title>Academic Lessons</title>
 </head>
 <body>
   <div id="root"></div>
