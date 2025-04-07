@@ -2,6 +2,16 @@
 // This makes it easier to use icons consistently across the app
 
 import React from 'react';
+import { Platform } from 'react-native';
+
+// Debug helper
+const logIconImport = (name: string) => {
+  if (Platform.OS === 'web') {
+    console.log(`[ICON] Importing ${name} icon`);
+  }
+};
+
+// Import icons with logging for debugging
 import {
   // Navigation icons
   Home,
@@ -62,14 +72,43 @@ import {
   LucideProps
 } from 'lucide-react-native';
 
-// Re-export all icons
+// Log import completion for debugging
+if (Platform.OS === 'web') {
+  console.log('[ICONS] Successfully imported Lucide icons');
+}
+
+// Wrapper components to add better debugging
+const createDebugIcon = (IconComponent: any, name: string) => {
+  const DebugIcon = (props: LucideProps) => {
+    if (Platform.OS === 'web') {
+      console.log(`[ICON] Rendering ${name} icon`);
+    }
+    return <IconComponent {...props} />;
+  };
+  DebugIcon.displayName = `${name}Icon`;
+  return DebugIcon;
+};
+
+// Create debuggable versions of icons
+const DebugHome = createDebugIcon(Home, 'Home');
+const DebugLayoutGrid = createDebugIcon(LayoutGrid, 'LayoutGrid');
+const DebugGrid = createDebugIcon(Grid, 'Grid');
+const DebugMenu = createDebugIcon(Menu, 'Menu');
+const DebugX = createDebugIcon(X, 'X');
+const DebugFile = createDebugIcon(File, 'File');
+const DebugFileText = createDebugIcon(FileText, 'FileText');
+const DebugImageIcon = createDebugIcon(ImageIcon, 'Image');
+const DebugTrash = createDebugIcon(Trash, 'Trash');
+const DebugBriefcase = createDebugIcon(Briefcase, 'Briefcase');
+
+// Re-export all icons, using debug versions on web
 export {
   // Navigation
-  Home,
-  LayoutGrid,
-  Grid,
-  Menu,
-  X,
+  DebugHome as Home,
+  DebugLayoutGrid as LayoutGrid,
+  DebugGrid as Grid,
+  DebugMenu as Menu,
+  DebugX as X,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
@@ -81,18 +120,18 @@ export {
   Users,
   
   // File
-  File,
-  FileText,
-  ImageIcon,
+  DebugFile as File,
+  DebugFileText as FileText,
+  DebugImageIcon as ImageIcon,
   Video,
   Music,
   Archive,
-  Trash,
+  DebugTrash as Trash,
   Download,
   Upload,
   
   // Business
-  Briefcase,
+  DebugBriefcase as Briefcase,
   CreditCard,
   DollarSign,
   Calendar,

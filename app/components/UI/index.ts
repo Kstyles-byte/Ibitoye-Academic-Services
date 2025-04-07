@@ -5,4 +5,6 @@ export * from './Card';
 export * from './Container';
 export * from './TopNav';
 export * from './LoadingScreen';
-export * from './Icons'; 
+export * from './Icons';
+export { FallbackIcon } from './FallbackIcon';
+export { SafeIcon } from './SafeIcon'; 

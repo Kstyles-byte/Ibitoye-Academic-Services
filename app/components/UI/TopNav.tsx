@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, TouchableOpacity, Dimensions, Platform, Modal } from 'react-native';
 import { Text } from './Text';
-import { LayoutGrid, Home, Briefcase, Menu, X } from './Icons';
+import { SafeIcon } from './SafeIcon';
 import { Colors, Spacing } from '../../constants';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../lib/firebase/hooks';
@@ -73,17 +73,17 @@ export const TopNav: React.FC<TopNavProps> = ({ title }) => {
   const NavLinks = () => (
     <>
       <TouchableOpacity style={styles.navLink} onPress={navigateToDashboard}>
-        <LayoutGrid size={18} color={Colors.dark} />
+        <SafeIcon name="LayoutGrid" size={18} color={Colors.dark} />
         <Text style={styles.navLinkText}>Dashboard</Text>
       </TouchableOpacity>
       
       <TouchableOpacity style={styles.navLink} onPress={navigateToHome}>
-        <Home size={18} color={Colors.dark} />
+        <SafeIcon name="Home" size={18} color={Colors.dark} />
         <Text style={styles.navLinkText}>Home</Text>
       </TouchableOpacity>
       
       <TouchableOpacity style={styles.navLink} onPress={navigateToServices}>
-        <Briefcase size={18} color={Colors.dark} />
+        <SafeIcon name="Briefcase" size={18} color={Colors.dark} />
         <Text style={styles.navLinkText}>Services</Text>
       </TouchableOpacity>
     </>
@@ -102,7 +102,7 @@ export const TopNav: React.FC<TopNavProps> = ({ title }) => {
             style={styles.menuButton} 
             onPress={() => setMenuOpen(true)}
           >
-            <Menu size={24} color={Colors.dark} />
+            <SafeIcon name="Menu" size={24} color={Colors.dark} />
           </TouchableOpacity>
         ) : (
           // Regular horizontal nav for larger screens
@@ -134,7 +134,7 @@ export const TopNav: React.FC<TopNavProps> = ({ title }) => {
                   style={styles.closeButton} 
                   onPress={() => setMenuOpen(false)}
                 >
-                  <X size={24} color={Colors.dark} />
+                  <SafeIcon name="X" size={24} color={Colors.dark} />
                 </TouchableOpacity>
               </View>
               

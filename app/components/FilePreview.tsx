@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { FileText, ImageIcon, Grid, Video, Music, Archive, Trash, File } from './UI/Icons';
+import { SafeIcon } from './UI/SafeIcon';
 import * as FileSystem from 'expo-file-system';
 import * as Linking from 'expo-linking';
+import { Platform } from 'react-native';
 
 interface FilePreviewProps {
   uri: string;
@@ -25,23 +26,21 @@ const formatFileSize = (bytes: number = 0): string => {
 };
 
 /**
- * Gets the icon component to display based on file type
+ * Gets the icon name to display based on file type
  */
-const getFileIcon = (type: string = '') => {
+const getFileIconName = (type: string = ''): string => {
   const mimeType = type.toLowerCase();
-  const iconColor = '#666';
-  const iconSize = 32;
   
-  if (mimeType.includes('image')) return <ImageIcon size={iconSize} color={iconColor} />;
-  if (mimeType.includes('pdf')) return <FileText size={iconSize} color={iconColor} />;
-  if (mimeType.includes('word') || mimeType.includes('document')) return <FileText size={iconSize} color={iconColor} />;
-  if (mimeType.includes('excel') || mimeType.includes('sheet')) return <Grid size={iconSize} color={iconColor} />;
-  if (mimeType.includes('video')) return <Video size={iconSize} color={iconColor} />;
-  if (mimeType.includes('audio')) return <Music size={iconSize} color={iconColor} />;
-  if (mimeType.includes('zip') || mimeType.includes('compressed')) return <Archive size={iconSize} color={iconColor} />;
+  if (mimeType.includes('image')) return 'ImageIcon';
+  if (mimeType.includes('pdf')) return 'FileText';
+  if (mimeType.includes('word') || mimeType.includes('document')) return 'FileText';
+  if (mimeType.includes('excel') || mimeType.includes('sheet')) return 'Grid';
+  if (mimeType.includes('video')) return 'Video';
+  if (mimeType.includes('audio')) return 'Music';
+  if (mimeType.includes('zip') || mimeType.includes('compressed')) return 'Archive';
   
   // Default
-  return <File size={iconSize} color={iconColor} />;
+  return 'File';
 };
 
 /**
@@ -55,11 +54,17 @@ const FilePreview: React.FC<FilePreviewProps> = ({
   onDelete
 }) => {
   const isImage = type.toLowerCase().includes('image');
-  const fileIcon = getFileIcon(type);
+  const iconName = getFileIconName(type);
   
   const handlePress = async () => {
     try {
-      // Check if file exists
+      // On web platform, just open the URL
+      if (Platform.OS === 'web') {
+        window.open(uri, '_blank');
+        return;
+      }
+      
+      // On native platforms, check if file exists first
       const fileInfo = await FileSystem.getInfoAsync(uri);
       if (!fileInfo.exists) {
         console.error('File does not exist:', uri);
@@ -73,13 +78,17 @@ const FilePreview: React.FC<FilePreviewProps> = ({
     }
   };
   
+  if (Platform.OS === 'web') {
+    console.log(`[FilePreview] Rendering file preview for ${name}, type: ${type}, icon: ${iconName}`);
+  }
+  
   return (
     <TouchableOpacity style={styles.container} onPress={handlePress}>
       {isImage ? (
         <Image source={{ uri }} style={styles.thumbnail} />
       ) : (
         <View style={styles.iconContainer}>
-          {fileIcon}
+          <SafeIcon name={iconName as any} size={32} color="#666" />
         </View>
       )}
       
@@ -94,7 +103,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
       
       {onDelete && (
         <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
-          <Trash size={22} color="#ff3b30" />
+          <SafeIcon name="Trash" size={22} color="#ff3b30" />
         </TouchableOpacity>
       )}
     </TouchableOpacity>
