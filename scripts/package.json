@@ -1,0 +1,15 @@
+{
+  "name": "academic-lessons-scripts",
+  "version": "1.0.0",
+  "description": "Scripts for Academic Lessons application",
+  "scripts": {
+    "create-admin": "node create-admin-user.js",
+    "promote-to-admin": "node promote-to-admin.js"
+  },
+  "dependencies": {
+    "firebase": "^10.3.0"
+  },
+  "devDependencies": {
+    "firebase-admin": "^11.10.1"
+  }
+} 

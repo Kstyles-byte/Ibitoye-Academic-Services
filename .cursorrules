@@ -1,0 +1,40 @@
+CURSOR RULE: Design-First Reference
+Rule Statement: Before implementing any UI component or layout, always check the images in the design/ folder as the primary reference for the intended design style. These images establish the baseline for design elements such as color schemes, typography, spacing, and layout.
+
+Guidelines:
+
+Reference Check:
+
+Action: Prior to building or updating any UI components, inspect the relevant images in the design/ folder.
+
+Purpose: Ensure that the intended design and style are understood and followed.
+
+Baseline Inspiration:
+
+Action: Use the images as a benchmark for visual elements, layout, and overall user experience.
+
+Purpose: Maintain consistency with the original design vision.
+
+Creative Adaptation:
+
+Action: While the design images provide a solid foundation, you are free to modify or improve the designs if you identify opportunities for enhancement.
+
+Purpose: Encourage innovation and adaptation to better meet user needs or technical constraints.
+
+Documentation:
+
+Action: Any changes or creative adaptations made away from the original reference should be clearly documented in the code comments.
+
+Purpose: Maintain a clear record of design decisions and ensure transparency for future reference.
+
+When getting images from the assets folder make sure to;
+
+2. The images are optimally sized and cropped for both portrait and landscape orientations
+3. The text is clearly readable against any background
+4. The layout adapts properly to different screen sizes
+
+Let the same colors go for both dark mode and light mode. In places where it is normally white but dark mode makes it black, make it white on dark mode as well. Force darkmode to adopt the same styling as light mode
+
+Dont run the app while still building, instead just build keep building and when you are done then tell me the command to run the app and ill do it whenever im ready.
+
+

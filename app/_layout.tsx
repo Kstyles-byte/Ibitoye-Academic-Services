@@ -7,6 +7,8 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import AppProvider from '@/app/providers/AppProvider';
+import { initializeStorage } from '@/app/lib/storage/storageInit';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -18,9 +20,21 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    async function prepare() {
+      try {
+        // Initialize local storage
+        await initializeStorage();
+        
+        // Hide splash screen if fonts are loaded
+        if (loaded) {
+          await SplashScreen.hideAsync();
+        }
+      } catch (error) {
+        console.error('Error during app initialization:', error);
+      }
     }
+
+    prepare();
   }, [loaded]);
 
   if (!loaded) {
@@ -28,12 +42,17 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <AppProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(client)" options={{ headerShown: false }} />
+          <Stack.Screen name="(expert)" options={{ headerShown: false }} />
+          <Stack.Screen name="(admin)" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="(public)" options={{ headerShown: false }} />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </AppProvider>
   );
 }
