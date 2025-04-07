@@ -104,7 +104,7 @@ const HomePage = () => {
             Academic Excellence{"\n"}Made Simple1
           </Text>
           <Text style={styles.heroSubtitle}>
-            Professional assistance for your academic journey
+            Professional assistance for your academic journeysssss
           </Text>
           <View style={styles.heroBtnContainer}>
             <Button 
