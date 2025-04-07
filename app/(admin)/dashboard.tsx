@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
-import { Text, Container, Card, TopNav, Icon, mapIoniconToLucide } from '../components/UI';
+import { Text, Container, Card, TopNav } from '../components/UI';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, Layout } from '../constants';
 import { useAuth } from '../lib/firebase/hooks';
 import { useRouter } from 'expo-router';
@@ -19,7 +20,7 @@ const AdminDashboard = () => {
       <TouchableOpacity onPress={onPress}>
         <Card style={styles.card}>
           <View style={styles.cardIconContainer}>
-            <Icon name={mapIoniconToLucide(icon)} size={24} color={Colors.primary} />
+            <Ionicons name={icon as any} size={24} color={Colors.primary} />
           </View>
           <View style={styles.cardContent}>
             <Text variant="h3" weight="bold" style={styles.cardTitle}>
@@ -29,7 +30,7 @@ const AdminDashboard = () => {
               {description}
             </Text>
           </View>
-          <Icon name={mapIoniconToLucide('chevron-forward')} size={20} color={Colors.muted} />
+          <Ionicons name="chevron-forward" size={20} color={Colors.muted} />
         </Card>
       </TouchableOpacity>
     );

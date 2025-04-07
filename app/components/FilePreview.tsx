@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { Icon, mapIoniconToLucide } from './UI/Icon';
+import { Ionicons } from '@expo/vector-icons';
 import * as FileSystem from 'expo-file-system';
 import * as Linking from 'expo-linking';
 
@@ -77,7 +77,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
         <Image source={{ uri }} style={styles.thumbnail} />
       ) : (
         <View style={styles.iconContainer}>
-          <Icon name={mapIoniconToLucide(icon)} size={32} color="#666" />
+          <Ionicons name={icon as any} size={32} color="#666" />
         </View>
       )}
       
@@ -92,7 +92,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
       
       {onDelete && (
         <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
-          <Icon name={mapIoniconToLucide('trash-outline')} size={22} color="#ff3b30" />
+          <Ionicons name="trash-outline" size={22} color="#ff3b30" />
         </TouchableOpacity>
       )}
     </TouchableOpacity>
