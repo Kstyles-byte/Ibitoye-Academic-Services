@@ -1,9 +1,0 @@
-/* Fonts for web platform */
-
-@font-face {
-  font-family: 'Ionicons';
-  src: url('/static/media/Ionicons.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: block;
-} 
