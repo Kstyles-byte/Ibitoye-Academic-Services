@@ -1,9 +1,9 @@
 import React from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 import { Container, Text, Card, Button } from '../components/UI';
+import { SafeIcon } from '../components/UI/SafeIcon';
 import { Colors, Spacing, Layout } from '../constants';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 
 const ClientDashboard = () => {
   const router = useRouter();
@@ -35,7 +35,7 @@ const ClientDashboard = () => {
       type: 'message',
       content: 'Expert left a message on "Essay Writing"',
       time: '2 hours ago',
-      icon: 'chatbubble',
+      icon: 'MessageSquare',
       color: Colors.primary,
     },
     {
@@ -43,7 +43,7 @@ const ClientDashboard = () => {
       type: 'status',
       content: 'Your "Research Paper" has been assigned',
       time: '5 hours ago',
-      icon: 'person-add',
+      icon: 'User',
       color: Colors.success,
     },
     {
@@ -51,7 +51,7 @@ const ClientDashboard = () => {
       type: 'file',
       content: 'You uploaded a new reference document',
       time: '1 day ago',
-      icon: 'document',
+      icon: 'File',
       color: Colors.secondary,
     },
   ];
@@ -122,7 +122,7 @@ const ClientDashboard = () => {
               onPress={() => router.push('/(client)/request-service')}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: Colors.primary }]}>
-                <Ionicons name="add" size={24} color={Colors.white} />
+                <SafeIcon name="Plus" size={24} color={Colors.white} />
               </View>
               <Text style={styles.quickActionText}>New Request</Text>
             </TouchableOpacity>
@@ -132,7 +132,7 @@ const ClientDashboard = () => {
               onPress={() => router.push('/(client)/messages')}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: Colors.success }]}>
-                <Ionicons name="chatbubbles" size={24} color={Colors.white} />
+                <SafeIcon name="MessageSquare" size={24} color={Colors.white} />
               </View>
               <Text style={styles.quickActionText}>Messages</Text>
             </TouchableOpacity>
@@ -142,7 +142,7 @@ const ClientDashboard = () => {
               onPress={() => router.push('/(client)/upload')}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: Colors.warning }]}>
-                <Ionicons name="cloud-upload" size={24} color={Colors.white} />
+                <SafeIcon name="Upload" size={24} color={Colors.white} />
               </View>
               <Text style={styles.quickActionText}>Upload</Text>
             </TouchableOpacity>
@@ -152,7 +152,7 @@ const ClientDashboard = () => {
               onPress={() => router.push('/(client)/support')}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: Colors.secondary }]}>
-                <Ionicons name="help-buoy" size={24} color={Colors.white} />
+                <SafeIcon name="Info" size={24} color={Colors.white} />
               </View>
               <Text style={styles.quickActionText}>Support</Text>
             </TouchableOpacity>
@@ -182,11 +182,11 @@ const ClientDashboard = () => {
                 
                 <View style={styles.serviceDetails}>
                   <View style={styles.serviceDetail}>
-                    <Ionicons name="calendar" size={16} color={Colors.muted} />
+                    <SafeIcon name="Calendar" size={16} color={Colors.muted} />
                     <Text style={styles.serviceDetailText}>Due: {service.dueDate}</Text>
                   </View>
                   <View style={styles.serviceDetail}>
-                    <Ionicons name="person" size={16} color={Colors.muted} />
+                    <SafeIcon name="User" size={16} color={Colors.muted} />
                     <Text style={styles.serviceDetailText}>Expert: {service.expert}</Text>
                   </View>
                 </View>
@@ -207,7 +207,7 @@ const ClientDashboard = () => {
             ))
           ) : (
             <Card style={styles.emptyCard}>
-              <Ionicons name="document" size={48} color={Colors.muted} />
+              <SafeIcon name="File" size={48} color={Colors.muted} />
               <Text style={styles.emptyText}>No active services</Text>
               <Text style={styles.emptySubtext}>
                 Get started by requesting a new academic service
@@ -238,7 +238,7 @@ const ClientDashboard = () => {
                         { backgroundColor: activity.color }
                       ]}
                     >
-                      <Ionicons name={activity.icon as any} size={16} color={Colors.white} />
+                      <SafeIcon name={activity.icon} size={16} color={Colors.white} />
                     </View>
                     <View style={styles.activityContent}>
                       <Text style={styles.activityText}>{activity.content}</Text>
@@ -249,15 +249,7 @@ const ClientDashboard = () => {
                 </View>
               ))}
             </Card>
-          ) : (
-            <Card style={styles.emptyCard}>
-              <Ionicons name="notifications" size={48} color={Colors.muted} />
-              <Text style={styles.emptyText}>No recent activity</Text>
-              <Text style={styles.emptySubtext}>
-                Your recent activities will appear here
-              </Text>
-            </Card>
-          )}
+          ) : null}
         </View>
       </Container>
     </ScrollView>

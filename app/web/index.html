@@ -10,92 +10,15 @@
   
   <!-- Inline script for SVG icon support -->
   <script>
-    // We're using direct SVG rendering instead of Lucide library
-    console.log('[ICONS_SYSTEM] Using direct SVG rendering instead of Lucide library');
-    
     // Mock the lucide global to prevent errors
     window.lucide = {
       createIcons: function() {
-        console.log('[ICONS_SYSTEM] Mock Lucide.createIcons called');
         return true;
       }
     };
     
     // Create a global variable to store if icons have been initialized
     window._iconsInitialized = true;
-    
-    // Debug utilities for icon troubleshooting
-    window.iconDebugLog = [];
-    window.logIconEvent = function(event, details) {
-      const timestamp = new Date().toISOString();
-      const logEntry = { timestamp, event, details };
-      window.iconDebugLog.push(logEntry);
-      console.log(`[ICON_DEBUG] ${event}`, details);
-    };
-    
-    // Add listener for DOM content loaded to track when the DOM is ready
-    document.addEventListener('DOMContentLoaded', function() {
-      window.logIconEvent('DOMContentLoaded', { timeStamp: performance.now() });
-      
-      // Setup mutation observer to detect icon insertion
-      const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-          if (mutation.type === 'childList') {
-            const addedSvgs = Array.from(mutation.addedNodes).filter(node => 
-              node.nodeName === 'svg' || (node.querySelectorAll && node.querySelectorAll('svg').length > 0)
-            );
-            
-            if (addedSvgs.length > 0) {
-              window.logIconEvent('SVGElementsAdded', { 
-                count: addedSvgs.length,
-                location: mutation.target.nodeName + (mutation.target.id ? '#' + mutation.target.id : '')
-              });
-            }
-          }
-        });
-      });
-      
-      // Observer configuration
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true
-      });
-      
-      // Expose debug function to window
-      window.debugIcons = function() {
-        const svgs = document.querySelectorAll('svg');
-        window.logIconEvent('SVGCount', { count: svgs.length });
-        
-        const svgContainers = document.querySelectorAll('.svg-icon-container');
-        window.logIconEvent('SVGContainers', { count: svgContainers.length });
-        
-        // Check if the Lucide library is available
-        const hasLucide = typeof window.lucide !== 'undefined';
-        window.logIconEvent('LucideAvailable', { available: hasLucide });
-        
-        // Log the full debug history to console
-        console.table(window.iconDebugLog);
-        
-        return {
-          svgCount: svgs.length,
-          containers: svgContainers.length,
-          hasLucide: hasLucide,
-          log: window.iconDebugLog
-        };
-      };
-      
-      // Debug run after a delay
-      setTimeout(function() {
-        window.debugIcons();
-      }, 2000);
-    });
-    
-    // Log when window is fully loaded
-    window.addEventListener('load', function() {
-      window.logIconEvent('WindowLoaded', { timeStamp: performance.now() });
-      // Run debug after window is fully loaded
-      setTimeout(window.debugIcons, 500);
-    });
   </script>
   
   <style>

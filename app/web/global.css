@@ -30,8 +30,6 @@ svg {
 .svg-icon-container svg {
   width: 100%;
   height: 100%;
-  visibility: visible !important;
-  opacity: 1 !important;
 }
 
 /* Fix for dark mode */
@@ -40,11 +38,6 @@ svg {
     color: inherit !important;
   }
 }
-
-/* Debug utility for development - uncomment to see element boundaries */
-/* .debug-icons * {
-  border: 1px solid red;
-} */
 
 /* Improved Lucide icon styling */
 .lucide {
@@ -148,6 +141,5 @@ svg {
 /* Force icon rendering regardless of display settings */
 .expo-vector-icon {
   font-family: inherit !important;
-  visibility: visible !important;
   display: inline !important;
 } 

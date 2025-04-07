@@ -3,76 +3,22 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { Platform } from 'react-native';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import AppProvider from '@/app/providers/AppProvider';
 import { initializeStorage } from '@/app/lib/storage/storageInit';
-import { DebugInfo } from '@/app/components/UI/DebugInfo';
-import { ForceSVGIcons } from '@/app/components/UI/ForceSVGIcons';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
-
-// Add web-specific debugging
-if (Platform.OS === 'web') {
-  console.log('[APP] Running on web platform');
-  
-  // Add debugging information to window for easier access
-  if (typeof window !== 'undefined') {
-    // @ts-ignore - Debugging utility
-    window.DEBUG = {
-      logIconInfo: () => {
-        const icons = document.querySelectorAll('[data-lucide]');
-        console.log(`[DEBUG] Found ${icons.length} Lucide icon elements in DOM`);
-        
-        icons.forEach((icon, i) => {
-          console.log(`[DEBUG] Icon ${i + 1}:`, {
-            element: icon,
-            name: icon.getAttribute('data-lucide'),
-            isVisible: window.getComputedStyle(icon).display !== 'none',
-            dimensions: {
-              width: icon.clientWidth,
-              height: icon.clientHeight
-            },
-            parent: icon.parentElement
-          });
-        });
-        
-        return `Found ${icons.length} icons`;
-      },
-      fixIcons: () => {
-        try {
-          console.log('[DEBUG] Attempting to manually fix icons');
-          // @ts-ignore - Access lucide global
-          if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
-            // @ts-ignore - Call lucide global
-            lucide.createIcons();
-            return 'Icons recreated successfully';
-          } else {
-            console.error('[DEBUG] Lucide library not found in global scope');
-            return 'Error: Lucide library not found';
-          }
-        } catch (e) {
-          console.error('[DEBUG] Error fixing icons:', e);
-          return `Error: ${e.message}`;
-        }
-      }
-    };
-    
-    console.log('[APP] Debug utilities attached to window.DEBUG');
-  }
-}
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
-  // State to control debug component visibility
-  const [showDebug] = useState(Platform.OS === 'web');
 
   useEffect(() => {
     async function prepare() {
@@ -117,8 +63,6 @@ export default function RootLayout() {
           <Stack.Screen name="(public)" options={{ headerShown: false }} />
         </Stack>
         <StatusBar style="auto" />
-        <DebugInfo show={showDebug} />
-        <ForceSVGIcons />
       </ThemeProvider>
     </AppProvider>
   );

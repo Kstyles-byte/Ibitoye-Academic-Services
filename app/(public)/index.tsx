@@ -1,9 +1,9 @@
 import React from 'react';
 import { StyleSheet, View, Image, ScrollView, Dimensions, ImageBackground, useWindowDimensions } from 'react-native';
 import { Container, Text, Button, Card } from '../components/UI';
+import { SafeIcon } from '../components/UI/SafeIcon';
 import { Colors, Spacing, Layout } from '../constants';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 
 // Define the type for testimonial objects
 interface Testimonial {
@@ -32,25 +32,25 @@ const HomePage = () => {
       id: 1,
       title: 'Assignment Help',
       description: 'Expert assistance with all types of academic assignments',
-      icon: 'document-text',
+      icon: 'FileText',
     },
     {
       id: 2,
       title: 'Essay Writing',
       description: 'Professional essay writing services for all academic levels',
-      icon: 'pencil',
+      icon: 'Edit',
     },
     {
       id: 3,
       title: 'Research Papers',
       description: 'In-depth research and well-structured papers with proper citations',
-      icon: 'newspaper',
+      icon: 'FileText',
     },
     {
       id: 4,
       title: 'Thesis & Dissertations',
       description: 'Comprehensive support for graduate-level research projects',
-      icon: 'school',
+      icon: 'BookOpen',
     },
   ];
 
@@ -82,9 +82,9 @@ const HomePage = () => {
     return (
       <View style={styles.ratingContainer}>
         {[...Array(5)].map((_, i) => (
-          <Ionicons
+          <SafeIcon
             key={i}
-            name={i < rating ? "star" : "star-outline"}
+            name="Star"
             size={16}
             color={i < rating ? Colors.warning : Colors.secondary}
             style={styles.starIcon}
@@ -141,7 +141,7 @@ const HomePage = () => {
           {services.map((service) => (
             <Card key={service.id} style={isMobile ? styles.serviceCardMobile : styles.serviceCard}>
               <View style={styles.serviceIconContainer}>
-                <Ionicons 
+                <SafeIcon 
                   name={service.icon as any} 
                   size={40} 
                   color={Colors.white} 

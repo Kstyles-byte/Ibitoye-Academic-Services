@@ -10,7 +10,6 @@
     "web": "expo start --web",
     "build:web": "expo export --platform web",
     "deploy:web": "npm run build:web && npx serve ./dist",
-    "debug:icons": "expo start --web /icon-test",
     "test": "jest --watchAll",
     "lint": "expo lint",
     "seed": "npx ts-node ./scripts/seedDatabase.ts",

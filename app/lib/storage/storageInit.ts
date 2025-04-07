@@ -19,11 +19,8 @@ const REQUIRED_DIRECTORIES = [
  */
 export const initializeStorage = async (): Promise<void> => {
   try {
-    console.log('Initializing storage directories...');
-    
     // Skip file system operations on web platform
     if (Platform.OS === 'web') {
-      console.log('Running on web platform - using browser storage instead of file system');
       return;
     }
     
@@ -37,8 +34,6 @@ export const initializeStorage = async (): Promise<void> => {
     for (const dir of REQUIRED_DIRECTORIES) {
       await createDirectory(dir);
     }
-    
-    console.log('Storage directories initialized successfully!');
   } catch (error) {
     console.error('Error initializing storage directories:', error);
     if (Platform.OS === 'web') {
@@ -60,7 +55,6 @@ export const getStorageInfo = async (): Promise<{
   try {
     // On web, return mock data to prevent errors
     if (Platform.OS === 'web') {
-      console.log('Running on web platform - storage info not available');
       return {
         directories: REQUIRED_DIRECTORIES,
         totalFiles: 0

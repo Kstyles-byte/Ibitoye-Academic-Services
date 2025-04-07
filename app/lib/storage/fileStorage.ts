@@ -52,7 +52,6 @@ export const saveFileLocally = async (fileUri: string, filename: string, subdire
   try {
     // Web implementation
     if (Platform.OS === 'web') {
-      console.log(`WebStorage: Simulating save file ${filename} to ${subdirectory}`);
       const key = `${subdirectory}/${filename}`;
       // For web, we just save the URI as we can't actually copy files
       return WebStorage.saveFile(key, fileUri);
@@ -80,7 +79,6 @@ export const deleteLocalFile = async (fileUri: string): Promise<void> => {
   try {
     // Web implementation
     if (Platform.OS === 'web') {
-      console.log(`WebStorage: Deleting file ${fileUri}`);
       return WebStorage.deleteFile(fileUri);
     }
     
@@ -100,7 +98,6 @@ export const listLocalFiles = async (subdirectory = ''): Promise<string[]> => {
   try {
     // Web implementation
     if (Platform.OS === 'web') {
-      console.log(`WebStorage: Listing files in ${subdirectory}`);
       return WebStorage.listKeys(subdirectory);
     }
     
@@ -121,7 +118,6 @@ export const readTextFile = async (fileUri: string): Promise<string> => {
   try {
     // Web implementation
     if (Platform.OS === 'web') {
-      console.log(`WebStorage: Reading file ${fileUri}`);
       const content = await WebStorage.getFile(fileUri);
       return content || '';
     }
@@ -139,7 +135,6 @@ export const writeTextFile = async (filename: string, content: string, subdirect
   try {
     // Web implementation
     if (Platform.OS === 'web') {
-      console.log(`WebStorage: Writing file ${filename} to ${subdirectory}`);
       const key = `${subdirectory}/${filename}`;
       return WebStorage.saveFile(key, content);
     }
@@ -163,7 +158,6 @@ export const getFileInfo = async (fileUri: string): Promise<any> => {
   try {
     // Web implementation
     if (Platform.OS === 'web') {
-      console.log(`WebStorage: Getting info for file ${fileUri}`);
       const content = await WebStorage.getFile(fileUri);
       return {
         exists: content !== null,
@@ -187,7 +181,6 @@ export const createDirectory = async (directoryName: string): Promise<string> =>
   try {
     // Web implementation
     if (Platform.OS === 'web') {
-      console.log(`WebStorage: Creating directory ${directoryName}`);
       return directoryName;
     }
     
@@ -206,7 +199,6 @@ export const deleteDirectory = async (directoryName: string): Promise<void> => {
   try {
     // Web implementation
     if (Platform.OS === 'web') {
-      console.log(`WebStorage: Deleting directory ${directoryName}`);
       const keys = await WebStorage.listKeys(directoryName);
       for (const key of keys) {
         await WebStorage.deleteFile(key);

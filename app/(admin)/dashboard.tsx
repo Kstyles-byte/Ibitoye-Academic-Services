@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 import { Text, Container, Card, TopNav } from '../components/UI';
-import { Ionicons } from '@expo/vector-icons';
+import { SafeIcon } from '../components/UI/SafeIcon';
 import { Colors, Spacing, Layout } from '../constants';
 import { useAuth } from '../lib/firebase/hooks';
 import { useRouter } from 'expo-router';
@@ -20,7 +20,7 @@ const AdminDashboard = () => {
       <TouchableOpacity onPress={onPress}>
         <Card style={styles.card}>
           <View style={styles.cardIconContainer}>
-            <Ionicons name={icon as any} size={24} color={Colors.primary} />
+            <SafeIcon name={icon as any} size={24} color={Colors.primary} />
           </View>
           <View style={styles.cardContent}>
             <Text variant="h3" weight="bold" style={styles.cardTitle}>
@@ -30,7 +30,7 @@ const AdminDashboard = () => {
               {description}
             </Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color={Colors.muted} />
+          <SafeIcon name="ChevronRight" size={20} color={Colors.muted} />
         </Card>
       </TouchableOpacity>
     );
@@ -58,7 +58,7 @@ const AdminDashboard = () => {
             <AdminCard
               title="User Management"
               description="Manage users, roles, and permissions"
-              icon="people"
+              icon="User"
               onPress={() => {
                 router.push('/(admin)/users');
               }}
@@ -67,7 +67,7 @@ const AdminDashboard = () => {
             <AdminCard
               title="Service Management"
               description="Add, edit, or remove services"
-              icon="briefcase"
+              icon="Briefcase"
               onPress={() => {
                 router.push('/(admin)/services');
               }}
@@ -76,7 +76,7 @@ const AdminDashboard = () => {
             <AdminCard
               title="Expert Verification"
               description="Review and verify expert applications"
-              icon="checkmark-circle"
+              icon="Check"
               onPress={() => {
                 router.push('/(admin)/expert-verification');
               }}
@@ -85,7 +85,7 @@ const AdminDashboard = () => {
             <AdminCard
               title="Request Monitoring"
               description="Monitor and manage service requests"
-              icon="eye"
+              icon="Search"
               onPress={() => {
                 router.push('/(admin)/requests');
               }}
@@ -94,7 +94,7 @@ const AdminDashboard = () => {
             <AdminCard
               title="System Settings"
               description="Configure system settings and parameters"
-              icon="settings"
+              icon="Settings"
               onPress={() => {
                 // Navigate to system settings screen
                 // router.push('/(admin)/settings');

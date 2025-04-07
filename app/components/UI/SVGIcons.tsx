@@ -1,168 +1,129 @@
 import React from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 
-// SVG path definitions for common icons
-// These will be used for direct SVG rendering when Lucide fails to load
-export const SVG_ICONS: Record<string, string> = {
-  // Navigation Icons
-  Home: "m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10",
-  LayoutGrid: "M3 3h7v7H3z M14 3h7v7h-7z M14 14h7v7h-7z M3 14h7v7H3z",
-  Grid: "M3 3h18v18H3z M3 9h18 M3 15h18 M9 3v18 M15 3v18",
-  Menu: "M4 12h16 M4 6h16 M4 18h16",
-  X: "M18 6 6 18 M6 6l12 12",
-
-  // File Icons
-  File: "M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z M14 2v6h6",
-  FileText: "M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8",
-  ImageIcon: "M3 3h18v18H3z M9 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4z M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21",
-  Trash: "M3 6h18 M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6 M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2",
-
-  // Business Icons
-  Briefcase: "M2 7h20v14H2z M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16",
+/**
+ * SVG Icon path data by name
+ * These are direct SVG path data for common icons
+ */
+export const SVG_ICONS: { [key: string]: string } = {
+  // Navigation
+  Home: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
+  Search: 'M11 17.25a6.25 6.25 0 1 1 0-12.5 6.25 6.25 0 0 1 0 12.5z M16 16l4.5 4.5',
+  Menu: 'M3 12h18 M3 6h18 M3 18h18',
+  Settings: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z',
+  Mail: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6',
+  Bell: 'M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0',
+  Calendar: 'M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z M16 2v4 M8 2v4 M3 10h18',
+  User: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
+  Users: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75 M9 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
+  Heart: 'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z',
+  Star: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z',
+  LayoutGrid: 'M3 3h7v7H3z M14 3h7v7h-7z M14 14h7v7h-7z M3 14h7v7H3z',
   
-  // Video and Audio
-  Video: "m22 8-6 4 6 4V8z M2 6h14v12H2z",
-  Music: "M9 18V5l12-2v13 M6 15a3 3 0 1 0 0 6 3 3 0 0 0 0-6z M18 13a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
-  Archive: "M2 3h20v5H2z M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8 M10 12h4",
+  // File types
+  File: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6',
+  FileText: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8',
+  ImageIcon: 'M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z M8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z M21 15l-5-5L5 21',
+  FileImage: 'M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z M14 2v6h6 M8 13h2 M8 17h2 M6 21h4l1-4 1 1h5',
   
-  // Additional Icons
-  FolderOpen: "M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z M2 10h20v9H2z",
-  ChevronLeft: "m15 18-6-6 6-6",
-  ChevronRight: "m9 18 6-6-6-6",
-  ChevronDown: "m6 9 6 6 6-6",
-  Search: "M11 17.25a6.25 6.25 0 1 1 0-12.5 6.25 6.25 0 0 1 0 12.5z M16 16l4.5 4.5",
-  LogOut: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4 M16 17l5-5-5-5 M21 12H9",
-  User: "M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2 M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z",
+  // Common actions
+  Plus: 'M12 5v14 M5 12h14',
+  Minus: 'M5 12h14',
+  Edit: 'M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7 M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z',
+  Trash: 'M3 6h18 M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2',
+  Check: 'M20 6L9 17l-5-5',
+  X: 'M18 6L6 18 M6 6l12 12',
+  
+  // Misc
+  BookOpen: 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z',
+  Briefcase: 'M20 7h-4V3H8v4H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z M8 3v4 M16 3v4 M3 13h18',
+  Video: 'M23 7l-7 5 7 5V7z M14 5H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z',
+  Music: 'M9 18V5l12-2v13 M9 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M21 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6z'
 };
 
-interface SVGIconProps {
-  name: string; 
+/**
+ * Props for the SVGIcon component
+ */
+export interface SVGIconProps {
+  /**
+   * Name of the SVG icon to render
+   */
+  name: string;
+  /**
+   * Size of the icon (default: 24)
+   */
   size?: number;
+  /**
+   * Color of the icon (default: currentColor)
+   */
   color?: string;
+  /**
+   * Stroke width of the icon (default: 2)
+   */
   strokeWidth?: number;
+  /**
+   * Additional styles to apply
+   */
+  containerStyle?: any;
 }
 
-// Component to render SVG icons directly
-export const SVGIcon: React.FC<SVGIconProps> = ({ 
-  name, 
-  size = 24, 
+/**
+ * Component for rendering SVG icons directly
+ */
+export const SVGIcon: React.FC<SVGIconProps> = ({
+  name,
+  size = 24,
   color = 'currentColor',
-  strokeWidth = 2
+  strokeWidth = 2,
+  containerStyle
 }) => {
-  // Get the SVG path for this icon
-  const pathData = SVG_ICONS[name];
-  
-  if (!pathData) {
-    console.warn(`[SVGIcon] Icon "${name}" not found in SVG definitions`);
+  if (!SVG_ICONS[name]) {
+    console.warn(`SVG icon "${name}" not found`);
     return null;
   }
   
-  // Log rendering
+  // Create SVG for web
   if (Platform.OS === 'web') {
-    console.log(`[SVGIcon] Rendering SVG icon: ${name}`);
-  }
-  
-  // For web platform, render an actual SVG
-  if (Platform.OS === 'web') {
-    // Create an SVG element with the path data
-    const svgStyle = {
-      width: `${size}px`,
-      height: `${size}px`,
-      display: 'inline-block',
-      verticalAlign: 'middle',
-      overflow: 'visible',
-    };
-    
-    // Generate unique ID to help with debugging
-    const uniqueId = `svg-icon-${name}-${Math.floor(Math.random() * 1000)}`;
-    
-    // Split the path data into separate commands
-    const paths = pathData.split(' M').map((p, i) => 
-      i === 0 ? p : `M${p}`
-    );
-    
+    // Create SVG element with proper attributes
     return (
-      <div style={svgStyle} className="svg-icon-container" data-icon-name={name}>
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          width={size} 
-          height={size} 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke={color} 
-          strokeWidth={strokeWidth} 
-          strokeLinecap="round" 
-          strokeLinejoin="round"
-          id={uniqueId}
-          data-lucide={name}
-          style={{ display: 'block', color: color }}
-        >
-          {paths.map((d, i) => (
-            <path key={`${name}-path-${i}`} d={d} />
-          ))}
-        </svg>
-      </div>
+      <View style={[styles.container, containerStyle, { width: size, height: size }]}>
+        <div className="svg-icon-container" style={{ width: size, height: size }}>
+          <svg
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={color}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="svg-icon"
+            dangerouslySetInnerHTML={{ __html: getPathElements(SVG_ICONS[name]) }}
+          />
+        </div>
+      </View>
     );
   }
   
-  // For other platforms, return null as we're not supporting direct SVG rendering
-  // This component should not be used on native platforms
-  return null;
+  // For native platforms - show a simple view
+  // In a real app, you'd implement native SVG rendering here
+  return (
+    <View style={[styles.container, containerStyle, { width: size, height: size }]} />
+  );
 };
 
-// Helper to check if SVG rendering is working
-export const debugSVGIcons = () => {
-  if (Platform.OS !== 'web') return false;
+// Helper function to create path elements from SVG path data
+function getPathElements(pathData: string): string {
+  // Split the path data if it contains multiple paths
+  const paths = pathData.split(' M').map((p, i) => i === 0 ? p : `M${p}`);
   
-  console.log('[SVGIcons] Available icons:', Object.keys(SVG_ICONS));
-  
-  // Test rendering an SVG directly into the DOM
-  if (typeof document !== 'undefined') {
-    const testContainer = document.createElement('div');
-    testContainer.id = 'svg-test-container';
-    testContainer.style.position = 'absolute';
-    testContainer.style.bottom = '10px';
-    testContainer.style.right = '10px';
-    testContainer.style.zIndex = '9999';
-    testContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
-    testContainer.style.padding = '5px';
-    testContainer.style.borderRadius = '3px';
-    
-    // Create a test SVG
-    const testSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    testSvg.setAttribute('width', '24');
-    testSvg.setAttribute('height', '24');
-    testSvg.setAttribute('viewBox', '0 0 24 24');
-    testSvg.setAttribute('fill', 'none');
-    testSvg.setAttribute('stroke', 'currentColor');
-    testSvg.setAttribute('stroke-width', '2');
-    
-    // Add a simple path (a circle)
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z');
-    
-    testSvg.appendChild(path);
-    testContainer.appendChild(testSvg);
-    document.body.appendChild(testContainer);
-    
-    // Add a remove button
-    const removeBtn = document.createElement('button');
-    removeBtn.textContent = 'X';
-    removeBtn.style.marginLeft = '5px';
-    removeBtn.style.cursor = 'pointer';
-    removeBtn.onclick = () => document.body.removeChild(testContainer);
-    testContainer.appendChild(removeBtn);
-    
-    console.log('[SVGIcons] Test SVG injected into DOM');
-    return true;
-  }
-  
-  return false;
-};
+  // Create a path element for each path
+  return paths.map(d => `<path d="${d}" />`).join('');
+}
 
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
+  }
 }); 

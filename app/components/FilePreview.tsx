@@ -78,10 +78,6 @@ const FilePreview: React.FC<FilePreviewProps> = ({
     }
   };
   
-  if (Platform.OS === 'web') {
-    console.log(`[FilePreview] Rendering file preview for ${name}, type: ${type}, icon: ${iconName}`);
-  }
-  
   return (
     <TouchableOpacity style={styles.container} onPress={handlePress}>
       {isImage ? (
