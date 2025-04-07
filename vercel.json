@@ -1,47 +1,32 @@
 {
-  "version": 2,
-  "framework": null,
-  "buildCommand": "npm run build:web",
+  "buildCommand": "expo export",
   "outputDirectory": "dist",
-  "public": true,
-  "cleanUrls": true,
-  "trailingSlash": false,
+  "devCommand": "expo start --web",
+  "framework": "react",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "s-maxage=1, stale-while-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "s-maxage=1, stale-while-revalidate=59"
+        }
       ]
     },
     {
-      "source": "/_expo/(.*)",
+      "source": "/static/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
-      ]
-    },
-    {
-      "source": "/assets/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
-      ]
-    },
-    {
-      "source": "/style.css",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=86400" }
-      ]
-    },
-    {
-      "source": "/*.js",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     }
-  ],
-  "rewrites": [
-    { "source": "/_expo/:path*", "destination": "/_expo/:path*" },
-    { "source": "/assets/:path*", "destination": "/assets/:path*" },
-    { "source": "/style.css", "destination": "/style.css" },
-    { "source": "/(.*)", "destination": "/index.html" }
   ]
 } 

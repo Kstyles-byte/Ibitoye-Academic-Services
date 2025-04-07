@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
-import { Container, Text, Card } from '../components/UI';
+import { Container, Text, Card, Icon, mapIoniconToLucide } from '../components/UI';
 import { Colors, Spacing } from '../constants';
-import { Ionicons } from '@expo/vector-icons';
 
 interface FAQItem {
   id: number;
@@ -146,8 +145,8 @@ const FAQPage = () => {
                     <Text weight="semiBold" style={styles.question}>
                       {item.question}
                     </Text>
-                    <Ionicons 
-                      name={expandedItems[item.id] ? 'chevron-up' : 'chevron-down'} 
+                    <Icon 
+                      name={mapIoniconToLucide(expandedItems[item.id] ? 'chevron-up' : 'chevron-down')} 
                       size={24} 
                       color={Colors.primary}
                     />
@@ -177,15 +176,15 @@ const FAQPage = () => {
             </Text>
             <View style={styles.contactInfo}>
               <View style={styles.contactItem}>
-                <Ionicons name="mail" size={24} color={Colors.primary} />
+                <Icon name={mapIoniconToLucide('mail')} size={24} color={Colors.primary} />
                 <Text style={styles.contactDetail}>support@academiclessons.com</Text>
               </View>
               <View style={styles.contactItem}>
-                <Ionicons name="call" size={24} color={Colors.primary} />
+                <Icon name={mapIoniconToLucide('call')} size={24} color={Colors.primary} />
                 <Text style={styles.contactDetail}>+234 800 123 4567</Text>
               </View>
               <View style={styles.contactItem}>
-                <Ionicons name="time" size={24} color={Colors.primary} />
+                <Icon name={mapIoniconToLucide('time')} size={24} color={Colors.primary} />
                 <Text style={styles.contactDetail}>Support Hours: 9am - 9pm (Mon-Fri)</Text>
               </View>
             </View>

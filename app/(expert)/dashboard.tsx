@@ -1,9 +1,8 @@
 import React from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { Container, Text, Card, Button } from '../components/UI';
+import { Container, Text, Card, Button, TopNav, Icon, mapIoniconToLucide } from '../components/UI';
 import { Colors, Spacing, Layout } from '../constants';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { signOut } from '../lib/firebase/auth';
 
 const ExpertDashboard = () => {
@@ -138,7 +137,7 @@ const ExpertDashboard = () => {
             style={styles.logoutButton}
             onPress={handleLogout}
           >
-            <Ionicons name="log-out-outline" size={24} color={Colors.danger} />
+            <Icon name={mapIoniconToLucide('log-out-outline')} size={24} color={Colors.danger} />
           </TouchableOpacity>
         </View>
 
@@ -150,7 +149,7 @@ const ExpertDashboard = () => {
           <View style={styles.statsGrid}>
             <View style={styles.statItem}>
               <View style={[styles.statIconContainer, { backgroundColor: Colors.success }]}>
-                <Ionicons name="checkmark-circle" size={24} color={Colors.white} />
+                <Icon name={mapIoniconToLucide('checkmark-circle')} size={24} color={Colors.white} />
               </View>
               <Text style={styles.statValue}>{expertStats.completedProjects}</Text>
               <Text style={styles.statLabel}>Completed</Text>
@@ -158,7 +157,7 @@ const ExpertDashboard = () => {
             
             <View style={styles.statItem}>
               <View style={[styles.statIconContainer, { backgroundColor: Colors.warning }]}>
-                <Ionicons name="time" size={24} color={Colors.white} />
+                <Icon name={mapIoniconToLucide('time')} size={24} color={Colors.white} />
               </View>
               <Text style={styles.statValue}>{expertStats.activeProjects}</Text>
               <Text style={styles.statLabel}>Active</Text>
@@ -166,7 +165,7 @@ const ExpertDashboard = () => {
             
             <View style={styles.statItem}>
               <View style={[styles.statIconContainer, { backgroundColor: Colors.primary }]}>
-                <Ionicons name="star" size={24} color={Colors.white} />
+                <Icon name={mapIoniconToLucide('star')} size={24} color={Colors.white} />
               </View>
               <Text style={styles.statValue}>{expertStats.rating}</Text>
               <Text style={styles.statLabel}>Rating</Text>
@@ -174,7 +173,7 @@ const ExpertDashboard = () => {
             
             <View style={styles.statItem}>
               <View style={[styles.statIconContainer, { backgroundColor: Colors.secondary }]}>
-                <Ionicons name="cash" size={24} color={Colors.white} />
+                <Icon name={mapIoniconToLucide('cash')} size={24} color={Colors.white} />
               </View>
               <Text style={styles.statValue}>{expertStats.earnings}</Text>
               <Text style={styles.statLabel}>Earnings</Text>
@@ -193,7 +192,7 @@ const ExpertDashboard = () => {
               onPress={() => router.push('/(expert)/available-projects')}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: Colors.primary }]}>
-                <Ionicons name="search" size={24} color={Colors.white} />
+                <Icon name={mapIoniconToLucide('search')} size={24} color={Colors.white} />
               </View>
               <Text style={styles.quickActionText}>Find Projects</Text>
             </TouchableOpacity>
@@ -203,7 +202,7 @@ const ExpertDashboard = () => {
               onPress={() => router.push('/(expert)/messages')}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: Colors.success }]}>
-                <Ionicons name="chatbubbles" size={24} color={Colors.white} />
+                <Icon name={mapIoniconToLucide('chatbubbles')} size={24} color={Colors.white} />
               </View>
               <Text style={styles.quickActionText}>Messages</Text>
             </TouchableOpacity>
@@ -213,7 +212,7 @@ const ExpertDashboard = () => {
               onPress={() => router.push('/(expert)/schedule')}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: Colors.warning }]}>
-                <Ionicons name="calendar" size={24} color={Colors.white} />
+                <Icon name={mapIoniconToLucide('calendar')} size={24} color={Colors.white} />
               </View>
               <Text style={styles.quickActionText}>Schedule</Text>
             </TouchableOpacity>
@@ -223,7 +222,7 @@ const ExpertDashboard = () => {
               onPress={() => router.push('/(expert)/earnings')}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: Colors.secondary }]}>
-                <Ionicons name="wallet" size={24} color={Colors.white} />
+                <Icon name={mapIoniconToLucide('wallet')} size={24} color={Colors.white} />
               </View>
               <Text style={styles.quickActionText}>Earnings</Text>
             </TouchableOpacity>
@@ -253,11 +252,11 @@ const ExpertDashboard = () => {
                 
                 <View style={styles.projectDetails}>
                   <View style={styles.projectDetail}>
-                    <Ionicons name="person" size={16} color={Colors.muted} />
+                    <Icon name={mapIoniconToLucide('person')} size={16} color={Colors.muted} />
                     <Text style={styles.projectDetailText}>Client: {project.client}</Text>
                   </View>
                   <View style={styles.projectDetail}>
-                    <Ionicons name="calendar" size={16} color={Colors.muted} />
+                    <Icon name={mapIoniconToLucide('calendar')} size={16} color={Colors.muted} />
                     <Text style={styles.projectDetailText}>Due: {project.dueDate}</Text>
                   </View>
                 </View>
@@ -278,7 +277,7 @@ const ExpertDashboard = () => {
             ))
           ) : (
             <Card style={styles.emptyCard}>
-              <Ionicons name="document" size={48} color={Colors.muted} />
+              <Icon name={mapIoniconToLucide('document')} size={48} color={Colors.muted} />
               <Text style={styles.emptyText}>No active projects</Text>
               <Text style={styles.emptySubtext}>
                 Browse available projects to find work
@@ -312,15 +311,15 @@ const ExpertDashboard = () => {
                 
                 <View style={styles.requestDetails}>
                   <View style={styles.requestDetail}>
-                    <Ionicons name="person" size={16} color={Colors.muted} />
+                    <Icon name={mapIoniconToLucide('person')} size={16} color={Colors.muted} />
                     <Text style={styles.requestDetailText}>Client: {request.client}</Text>
                   </View>
                   <View style={styles.requestDetail}>
-                    <Ionicons name="calendar" size={16} color={Colors.muted} />
+                    <Icon name={mapIoniconToLucide('calendar')} size={16} color={Colors.muted} />
                     <Text style={styles.requestDetailText}>Deadline: {request.deadline}</Text>
                   </View>
                   <View style={styles.requestDetail}>
-                    <Ionicons name="cash" size={16} color={Colors.muted} />
+                    <Icon name={mapIoniconToLucide('cash')} size={16} color={Colors.muted} />
                     <Text style={styles.requestDetailText}>Budget: {request.budget}</Text>
                   </View>
                 </View>
@@ -348,7 +347,7 @@ const ExpertDashboard = () => {
             ))
           ) : (
             <Card style={styles.emptyCard}>
-              <Ionicons name="document" size={48} color={Colors.muted} />
+              <Icon name={mapIoniconToLucide('document')} size={48} color={Colors.muted} />
               <Text style={styles.emptyText}>No pending requests</Text>
               <Text style={styles.emptySubtext}>
                 Check back later for new project requests

@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, ScrollView, Image, ViewStyle } from 'react-native';
-import { Container, Text, Button, Card, IconWrapper } from '../components/UI';
+import { Container, Text, Button, Card } from '../components/UI';
 import { Colors, Spacing, Layout } from '../constants';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -116,8 +116,8 @@ const ServicesPage = () => {
             <Card key={service.id} style={styles.serviceCard}>
               <View style={styles.serviceHeader}>
                 <View style={styles.serviceIconContainer}>
-                  <IconWrapper 
-                    name={service.icon} 
+                  <Ionicons 
+                    name={service.icon as any} 
                     size={28} 
                     color={Colors.white}
                   />
@@ -137,7 +137,7 @@ const ServicesPage = () => {
                 </Text>
                 {service.features.map((feature, index) => (
                   <View key={index} style={styles.featureItem}>
-                    <IconWrapper name="checkmark-circle" size={18} color={Colors.success} />
+                    <Ionicons name="checkmark-circle" size={18} color={Colors.success} />
                     <Text style={styles.featureText}>{feature}</Text>
                   </View>
                 ))}
@@ -179,32 +179,32 @@ const ServicesPage = () => {
             
             <View style={styles.comparisonRow}>
               <Text style={styles.comparisonFeature}>Expert Writers</Text>
-              <IconWrapper name="checkmark-circle" size={24} color={Colors.success} />
-              <IconWrapper name="close-circle" size={24} color={Colors.danger} />
+              <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
+              <Ionicons name="close-circle" size={24} color={Colors.danger} />
             </View>
             
             <View style={styles.comparisonRow}>
               <Text style={styles.comparisonFeature}>Plagiarism-Free</Text>
-              <IconWrapper name="checkmark-circle" size={24} color={Colors.success} />
-              <IconWrapper name="help-circle" size={24} color={Colors.warning} />
+              <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
+              <Ionicons name="help-circle" size={24} color={Colors.warning} />
             </View>
             
             <View style={styles.comparisonRow}>
               <Text style={styles.comparisonFeature}>Free Revisions</Text>
-              <IconWrapper name="checkmark-circle" size={24} color={Colors.success} />
-              <IconWrapper name="close-circle" size={24} color={Colors.danger} />
+              <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
+              <Ionicons name="close-circle" size={24} color={Colors.danger} />
             </View>
             
             <View style={styles.comparisonRow}>
               <Text style={styles.comparisonFeature}>On-Time Delivery</Text>
-              <IconWrapper name="checkmark-circle" size={24} color={Colors.success} />
-              <IconWrapper name="help-circle" size={24} color={Colors.warning} />
+              <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
+              <Ionicons name="help-circle" size={24} color={Colors.warning} />
             </View>
             
             <View style={styles.comparisonRow}>
               <Text style={styles.comparisonFeature}>Customer Support</Text>
-              <IconWrapper name="checkmark-circle" size={24} color={Colors.success} />
-              <IconWrapper name="close-circle" size={24} color={Colors.danger} />
+              <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
+              <Ionicons name="close-circle" size={24} color={Colors.danger} />
             </View>
           </Card>
         </Container>
