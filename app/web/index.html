@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Academic Lessons</title>
+    <style>
+      /* Inline Ionicons font-face */
+      @font-face {
+        font-family: 'Ionicons';
+        src: url('/assets/fonts/Ionicons.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: block;
+      }
+      
+      /* Additional font paths for fallback */
+      @font-face {
+        font-family: 'Ionicons';
+        src: url('/static/media/Ionicons.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: block;
+      }
+      
+      @font-face {
+        font-family: 'Ionicons';
+        src: url('/_next/static/media/Ionicons.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: block;
+      }
+    </style>
+    
+    <!-- Preload Ionicons fonts from different possible locations -->
+    <link rel="preload" href="/assets/fonts/Ionicons.ttf" as="font" type="font/ttf" crossorigin="anonymous" />
+    <link rel="preload" href="/static/media/Ionicons.ttf" as="font" type="font/ttf" crossorigin="anonymous" />
+    <link rel="preload" href="/_next/static/media/Ionicons.ttf" as="font" type="font/ttf" crossorigin="anonymous" />
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html> 
