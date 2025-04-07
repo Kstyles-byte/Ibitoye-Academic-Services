@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { FileText, ImageIcon, Grid, Video, Music, Archive, Trash, File } from './UI/Icons';
 import * as FileSystem from 'expo-file-system';
 import * as Linking from 'expo-linking';
 
@@ -25,21 +25,23 @@ const formatFileSize = (bytes: number = 0): string => {
 };
 
 /**
- * Gets the icon to display based on file type
+ * Gets the icon component to display based on file type
  */
-const getFileIcon = (type: string = ''): string => {
+const getFileIcon = (type: string = '') => {
   const mimeType = type.toLowerCase();
+  const iconColor = '#666';
+  const iconSize = 32;
   
-  if (mimeType.includes('image')) return 'image-outline';
-  if (mimeType.includes('pdf')) return 'document-text-outline';
-  if (mimeType.includes('word') || mimeType.includes('document')) return 'document-outline';
-  if (mimeType.includes('excel') || mimeType.includes('sheet')) return 'grid-outline';
-  if (mimeType.includes('video')) return 'videocam-outline';
-  if (mimeType.includes('audio')) return 'musical-notes-outline';
-  if (mimeType.includes('zip') || mimeType.includes('compressed')) return 'archive-outline';
+  if (mimeType.includes('image')) return <ImageIcon size={iconSize} color={iconColor} />;
+  if (mimeType.includes('pdf')) return <FileText size={iconSize} color={iconColor} />;
+  if (mimeType.includes('word') || mimeType.includes('document')) return <FileText size={iconSize} color={iconColor} />;
+  if (mimeType.includes('excel') || mimeType.includes('sheet')) return <Grid size={iconSize} color={iconColor} />;
+  if (mimeType.includes('video')) return <Video size={iconSize} color={iconColor} />;
+  if (mimeType.includes('audio')) return <Music size={iconSize} color={iconColor} />;
+  if (mimeType.includes('zip') || mimeType.includes('compressed')) return <Archive size={iconSize} color={iconColor} />;
   
   // Default
-  return 'document-outline';
+  return <File size={iconSize} color={iconColor} />;
 };
 
 /**
@@ -53,7 +55,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
   onDelete
 }) => {
   const isImage = type.toLowerCase().includes('image');
-  const icon = getFileIcon(type);
+  const fileIcon = getFileIcon(type);
   
   const handlePress = async () => {
     try {
@@ -77,7 +79,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
         <Image source={{ uri }} style={styles.thumbnail} />
       ) : (
         <View style={styles.iconContainer}>
-          <Ionicons name={icon as any} size={32} color="#666" />
+          {fileIcon}
         </View>
       )}
       
@@ -92,7 +94,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
       
       {onDelete && (
         <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
-          <Ionicons name="trash-outline" size={22} color="#ff3b30" />
+          <Trash size={22} color="#ff3b30" />
         </TouchableOpacity>
       )}
     </TouchableOpacity>

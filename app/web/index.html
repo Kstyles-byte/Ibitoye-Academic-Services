@@ -7,35 +7,31 @@
   
   <!-- Preconnect to CDNs for faster loading -->
   <link rel="preconnect" href="https://unpkg.com">
-  <link rel="preconnect" href="https://cdn.jsdelivr.net">
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
   
-  <!-- Preload critical icon fonts -->
-  <link rel="preload" href="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/fonts/ionicons.woff2" as="font" type="font/woff2" crossorigin>
+  <!-- Lucide icons support -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   
-  <!-- Properly include vector icon fonts -->
-  <link href="https://unpkg.com/ionicons@5.5.2/dist/css/ionicons.min.css" rel="stylesheet">
+  <script>
+    // Fix for SVG icons in React Native Web
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize any Lucide icons that might be in the DOM
+      lucide.createIcons();
+      
+      // Add a mutation observer to catch dynamically added icons
+      const observer = new MutationObserver(function() {
+        lucide.createIcons();
+      });
+      
+      // Start observing the document with the configured parameters
+      observer.observe(document.body, { 
+        childList: true,
+        subtree: true
+      });
+    });
+  </script>
   
-  <!-- Explicit font loading for Expo Vector Icons -->
   <style>
-    /* Load Ionicons font explicitly */
-    @font-face {
-      font-family: 'Ionicons';
-      src: url('https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/fonts/ionicons.woff2') format('woff2'),
-           url('https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/fonts/ionicons.woff') format('woff'),
-           url('https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/fonts/ionicons.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
-      font-display: block;
-    }
-
-    /* Load Expo Vector Icons manually */
-    @font-face {
-      font-family: 'FontAwesome';
-      src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/webfonts/fa-solid-900.ttf') format('truetype');
-    }
-    
     /* Force fullscreen and remove margins */
     html, body, #root {
       height: 100%;
@@ -44,18 +40,13 @@
       overflow: hidden;
     }
     
-    /* Make sure dark mode colors don't affect icon colors */
-    .ionicon, i[class*="icon-"] {
-      color: inherit !important;
-    }
-    
-    /* Fix for Expo Vector Icons in web */
-    span[class^="Ionicons-"] {
-      font-family: 'Ionicons' !important;
+    /* Basic SVG icon styling */
+    svg {
+      vertical-align: middle;
     }
   </style>
   
-  <!-- You can replace this with your app name -->
+  <!-- Academic Lessons -->
   <title>Academic Lessons</title>
 </head>
 <body>

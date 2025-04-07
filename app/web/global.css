@@ -1,3 +1,57 @@
+/* Web-specific styles */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Basic styling for Lucide icons */
+.lucide {
+  width: 1em;
+  height: 1em;
+  stroke-width: 2;
+  stroke: currentColor;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Fix for dark mode */
+@media (prefers-color-scheme: dark) {
+  .lucide {
+    color: inherit !important;
+  }
+}
+
+/* Ensure SVG icons display properly in all contexts */
+svg.lucide {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Ensure correct sizing of icons */
+.icon-container svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Prevent text selection on icons */
+svg {
+  user-select: none;
+}
+
+/* Force compatibility with React Native Web */
+[data-icon] {
+  display: inline-flex !important;
+}
+
+/* Improve icon rendering in flex containers */
+svg {
+  max-width: 100%;
+  max-height: 100%;
+}
+
 /* Icon font definitions */
 @font-face {
   font-family: 'Ionicons';

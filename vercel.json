@@ -38,12 +38,20 @@
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
         { "key": "Access-Control-Allow-Origin", "value": "*" }
       ]
+    },
+    {
+      "source": "/static/(.*)\\.(js|css|svg)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
     }
   ],
   "rewrites": [
     { "source": "/_expo/:path*", "destination": "/_expo/:path*" },
     { "source": "/assets/:path*", "destination": "/assets/:path*" },
     { "source": "/fonts/:path*", "destination": "/fonts/:path*" },
+    { "source": "/static/:path*", "destination": "/static/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 } 

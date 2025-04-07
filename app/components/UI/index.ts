@@ -1,6 +1,8 @@
-export { default as Button } from './Button';
-export { default as Card } from './Card';
-export { default as Text } from './Text';
-export { default as Container } from './Container';
-export { LoadingScreen } from './LoadingScreen';
-export { TopNav } from './TopNav'; 
+// UI Components
+export * from './Text';
+export * from './Button';
+export * from './Card';
+export * from './Container';
+export * from './TopNav';
+export * from './LoadingScreen';
+export * from './Icons'; 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, TouchableOpacity, Dimensions, Platform, Modal } from 'react-native';
 import { Text } from './Text';
-import { Ionicons } from '@expo/vector-icons';
+import { LayoutGrid, Home, Briefcase, Menu, X } from './Icons';
 import { Colors, Spacing } from '../../constants';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../lib/firebase/hooks';
@@ -73,17 +73,17 @@ export const TopNav: React.FC<TopNavProps> = ({ title }) => {
   const NavLinks = () => (
     <>
       <TouchableOpacity style={styles.navLink} onPress={navigateToDashboard}>
-        <Ionicons name="grid-outline" size={18} color={Colors.dark} />
+        <LayoutGrid size={18} color={Colors.dark} />
         <Text style={styles.navLinkText}>Dashboard</Text>
       </TouchableOpacity>
       
       <TouchableOpacity style={styles.navLink} onPress={navigateToHome}>
-        <Ionicons name="home-outline" size={18} color={Colors.dark} />
+        <Home size={18} color={Colors.dark} />
         <Text style={styles.navLinkText}>Home</Text>
       </TouchableOpacity>
       
       <TouchableOpacity style={styles.navLink} onPress={navigateToServices}>
-        <Ionicons name="briefcase-outline" size={18} color={Colors.dark} />
+        <Briefcase size={18} color={Colors.dark} />
         <Text style={styles.navLinkText}>Services</Text>
       </TouchableOpacity>
     </>
@@ -102,7 +102,7 @@ export const TopNav: React.FC<TopNavProps> = ({ title }) => {
             style={styles.menuButton} 
             onPress={() => setMenuOpen(true)}
           >
-            <Ionicons name="menu-outline" size={24} color={Colors.dark} />
+            <Menu size={24} color={Colors.dark} />
           </TouchableOpacity>
         ) : (
           // Regular horizontal nav for larger screens
@@ -134,7 +134,7 @@ export const TopNav: React.FC<TopNavProps> = ({ title }) => {
                   style={styles.closeButton} 
                   onPress={() => setMenuOpen(false)}
                 >
-                  <Ionicons name="close" size={24} color={Colors.dark} />
+                  <X size={24} color={Colors.dark} />
                 </TouchableOpacity>
               </View>
               
