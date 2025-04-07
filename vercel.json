@@ -24,11 +24,18 @@
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
+    },
+    {
+      "source": "/_next/static/media/(.*\\.ttf)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
     }
   ],
   "rewrites": [
     { "source": "/_expo/:path*", "destination": "/_expo/:path*" },
     { "source": "/assets/:path*", "destination": "/assets/:path*" },
+    { "source": "/_next/static/media/:path*", "destination": "/_next/static/media/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 } 
