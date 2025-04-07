@@ -1,0 +1,31 @@
+/* Icon font definitions */
+@font-face {
+  font-family: 'Ionicons';
+  src: url('https://cdn.jsdelivr.net/npm/ionicons@5.5.1/dist/fonts/ionicons.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/npm/ionicons@5.5.1/dist/fonts/ionicons.woff') format('woff'),
+       url('https://cdn.jsdelivr.net/npm/ionicons@5.5.1/dist/fonts/ionicons.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+/* Ensure icon elements display correctly */
+.ionicon {
+  display: inline-block;
+  font-family: 'Ionicons' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Make sure dark mode doesn't affect icon colors */
+@media (prefers-color-scheme: dark) {
+  .ionicon {
+    color: inherit !important;
+  }
+} 
