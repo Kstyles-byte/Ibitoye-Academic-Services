@@ -391,7 +391,7 @@ const RequestMonitoring = () => {
           <FlatList
             horizontal
             data={[
-              { status: 'ALL', label: 'All Requests2' },
+              { status: 'ALL', label: 'All Requests' },
               { status: RequestStatus.PENDING, label: 'Pending' },
               { status: RequestStatus.APPROVED, label: 'Approved' },
               { status: RequestStatus.ASSIGNED, label: 'Assigned' },
