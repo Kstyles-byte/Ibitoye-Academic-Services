@@ -9,7 +9,7 @@ import { Platform } from 'react-native';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import AppProvider from '@/app/providers/AppProvider';
-import { initializeStorage } from '@/app/lib/storage/storageInit';
+import { initializeStorage } from '@/app/lib/cloudinary';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();

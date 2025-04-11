@@ -44,10 +44,11 @@ export default function ClientLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="dashboard" />
       <Stack.Screen name="profile" />
-      <Stack.Screen name="services" />
-      <Stack.Screen name="request-service" />
       <Stack.Screen name="service-detail" />
       <Stack.Screen name="payments" />
+      <Stack.Screen name="services" />
+      <Stack.Screen name="request-service" />
+      <Stack.Screen name="upload" />
     </Stack>
   );
 } 

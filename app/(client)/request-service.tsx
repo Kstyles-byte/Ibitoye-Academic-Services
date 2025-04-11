@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -11,21 +11,34 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { Container, Text, Button, Card } from '../components/UI';
+import { SafeIcon } from '../components/UI/SafeIcon';
 import { Colors, Spacing, Layout } from '../constants';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { getAllServices, getServiceById } from '../lib/db/repositories/serviceRepository';
+import { createServiceRequest, addAttachment } from '../lib/db/repositories/serviceRequestRepository';
+import { Service, RequestStatus } from '../lib/db/types';
+import { useAuth } from '../lib/firebase/hooks';
+import * as DocumentPicker from 'expo-document-picker';
+import { saveFileLocally, initializeStorage } from '../lib/cloudinary';
+import { UPLOAD_FOLDERS, generateUniqueFilename } from '../lib/cloudinary/config';
+
+// Add this at the top level of the file, outside of your component
+// This lets TypeScript know about our global URL mapping
+declare global {
+  interface Window {
+    cloudinaryUrlMap?: Record<string, string>;
+  }
+}
 
 const RequestServicePage = () => {
   const router = useRouter();
-
-  const serviceTypes = [
-    { id: 1, name: 'Assignment Help', icon: 'document-text' },
-    { id: 2, name: 'Essay Writing', icon: 'pencil' },
-    { id: 3, name: 'Research Paper', icon: 'newspaper' },
-    { id: 4, name: 'Thesis/Dissertation', icon: 'school' },
-    { id: 5, name: 'Programming/Coding', icon: 'code-slash' },
-    { id: 6, name: 'Online Exam', icon: 'clipboard' },
-  ];
+  const params = useLocalSearchParams();
+  const { user } = useAuth();
+  const [services, setServices] = useState<Service[]>([]);
+  const [loadingServices, setLoadingServices] = useState(true);
+  const initialServiceIdSet = useRef(false);
+  const [submissionSuccess, setSubmissionSuccess] = useState(false);
 
   const academicLevels = [
     { id: 1, name: 'High School' },
@@ -37,7 +50,7 @@ const RequestServicePage = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    serviceType: 0,
+    serviceId: '',
     academicLevel: 0,
     deadline: '',
     budget: '',
@@ -47,6 +60,43 @@ const RequestServicePage = () => {
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    // Initialize storage and fetch services
+    const setup = async () => {
+      try {
+        await initializeStorage();
+      } catch (error) {
+        console.error("Error initializing storage:", error);
+      }
+      
+      fetchServices();
+    };
+    
+    setup();
+  }, []);
+
+  // This effect only runs once after services are loaded and if there's a serviceId param
+  useEffect(() => {
+    if (services.length > 0 && params.serviceId && !initialServiceIdSet.current) {
+      handleChange('serviceId', params.serviceId as string);
+      initialServiceIdSet.current = true;
+    }
+  }, [params.serviceId, services]);
+
+  const fetchServices = async () => {
+    setLoadingServices(true);
+    try {
+      // Fetch only active services
+      const fetchedServices = await getAllServices(true);
+      setServices(fetchedServices);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+      Alert.alert("Error", "Failed to load available services.");
+    } finally {
+      setLoadingServices(false);
+    }
+  };
 
   const handleChange = (field: string, value: string | number) => {
     setFormData(prev => ({
@@ -63,23 +113,67 @@ const RequestServicePage = () => {
     }
   };
 
-  const selectServiceType = (id: number) => {
-    handleChange('serviceType', id);
+  const selectServiceType = (serviceId: string) => {
+    handleChange('serviceId', serviceId);
   };
 
   const selectAcademicLevel = (id: number) => {
     handleChange('academicLevel', id);
   };
 
-  const handleUploadFile = () => {
+  const handleUploadFile = async () => {
     setIsUploading(true);
     
-    // Simulate file upload
-    setTimeout(() => {
-      const fileName = `Document-${Math.floor(Math.random() * 1000)}.pdf`;
-      setUploadedFiles(prev => [...prev, fileName]);
+    try {
+      // Use DocumentPicker to select a file
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['*/*'],
+        copyToCacheDirectory: true
+      });
+      
+      if (result.canceled) {
+        setIsUploading(false);
+        return;
+      }
+      
+      const file = result.assets[0];
+      
+      // Generate a unique filename
+      const uniqueFilename = generateUniqueFilename(file.name);
+      
+      try {
+        // Save file to Cloudinary
+        const fileUrl = await saveFileLocally(file.uri, file.name, UPLOAD_FOLDERS.ATTACHMENTS);
+        
+        // Add to uploaded files array
+        setUploadedFiles(prev => [
+          ...prev, 
+          uniqueFilename
+        ]);
+
+        // Store the URL mapping for later use during submission
+        // This is needed because we're just storing filenames in state but need the URLs for the database
+        if (!window.cloudinaryUrlMap) {
+          window.cloudinaryUrlMap = {};
+        }
+        window.cloudinaryUrlMap[uniqueFilename] = fileUrl;
+        
+      } catch (err: any) {
+        console.warn('Error saving file to Cloudinary:', err);
+        Alert.alert(
+          'Upload Error',
+          'There was a problem uploading your file to the cloud. Please try again.',
+          [{ text: 'OK' }]
+        );
+        throw err;
+      }
+      
       setIsUploading(false);
-    }, 1500);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      Alert.alert('Error', 'Failed to upload file. Please try again.');
+      setIsUploading(false);
+    }
   };
 
   const removeFile = (index: number) => {
@@ -100,8 +194,8 @@ const RequestServicePage = () => {
       isValid = false;
     }
 
-    if (formData.serviceType === 0) {
-      newErrors.serviceType = 'Please select a service type';
+    if (!formData.serviceId) {
+      newErrors.serviceId = 'Please select a service type';
       isValid = false;
     }
 
@@ -124,27 +218,106 @@ const RequestServicePage = () => {
     return isValid;
   };
 
-  const handleSubmit = () => {
+  const getAcademicLevelName = (id: number) => {
+    const level = academicLevels.find(level => level.id === id);
+    return level ? level.name : '';
+  };
+
+  const handleSubmit = async () => {
     if (!validateForm()) {
+      return;
+    }
+
+    if (!user || !user.id) {
+      Alert.alert('Error', 'You must be logged in to submit a request');
       return;
     }
 
     setIsSubmitting(true);
 
-    // Simulate request submission
+    try {
+      // Parse deadline string to a Date object
+      const deadlineDate = new Date(formData.deadline);
+      
+      // Create service request in Firestore
+      const serviceRequest = await createServiceRequest({
+        clientId: user.id,
+        serviceId: formData.serviceId,
+        subject: formData.title,
+        requirements: formData.description,
+        academicLevel: getAcademicLevelName(formData.academicLevel),
+        deadline: {
+          seconds: Math.floor(deadlineDate.getTime() / 1000),
+          nanoseconds: 0
+        },
+        additionalInfo: formData.additionalNotes,
+        status: RequestStatus.PENDING
+      });
+
+      // Create attachments in database for any uploaded files
+      if (uploadedFiles.length > 0) {
+        try {
+          const uploadPromises = uploadedFiles.map(async (filename) => {
+            // Get the Cloudinary URL from our mapping
+            const fileUrl = window.cloudinaryUrlMap?.[filename] || '';
+            
+            // Create attachment record in database
+            await addAttachment({
+              serviceRequestId: serviceRequest.id,
+              name: filename,
+              fileUrl: fileUrl,
+              fileType: filename.includes('.pdf') ? 'application/pdf' : 'application/octet-stream',
+              fileSize: 0, // Cloudinary doesn't give us the size easily, we could store this separately if needed
+              uploadedBy: user.id
+            });
+          });
+          
+          await Promise.all(uploadPromises);
+        } catch (error) {
+          console.error('Error saving attachments:', error);
+          // Continue with success flow even if attachments fail
+        }
+      }
+
+      // Show success state
+      setSubmissionSuccess(true);
+      
+      // Auto-redirect after 2 seconds
     setTimeout(() => {
+        router.replace('/(client)/dashboard');
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Error submitting service request:', error);
       Alert.alert(
-        'Request Submitted',
-        'Your service request has been submitted successfully. We will match you with an expert soon.',
-        [
-          {
-            text: 'OK',
-            onPress: () => router.push('/(client)/dashboard')
-          }
-        ]
+        'Submission Failed',
+        'There was an error submitting your request. Please try again.'
       );
       setIsSubmitting(false);
-    }, 2000);
+    }
+  };
+
+  const getServiceName = (serviceId: string) => {
+    const service = services.find(s => s.id === serviceId);
+    return service ? service.name : '';
+  };
+
+  const getServiceIcon = (serviceId: string) => {
+    // Map service categories to icons
+    const service = services.find(s => s.id === serviceId);
+    if (!service) return 'document-text';
+
+    // Map based on category name
+    const category = service.category.toLowerCase();
+    if (category.includes('essay')) return 'pencil';
+    if (category.includes('research')) return 'newspaper';
+    if (category.includes('thesis') || category.includes('dissertation')) return 'school';
+    if (category.includes('programming') || category.includes('coding')) return 'code-slash';
+    if (category.includes('exam')) return 'clipboard';
+    if (category.includes('assignment')) return 'document-text';
+    
+    // Default icon
+    return 'document-text';
   };
 
   return (
@@ -152,9 +325,33 @@ const RequestServicePage = () => {
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
+      {submissionSuccess ? (
+        <View style={styles.successContainer}>
+          <View style={styles.successIconContainer}>
+            <SafeIcon name="CheckCircle" size={80} color={Colors.success} />
+          </View>
+          <Text variant="h3" weight="bold" style={styles.successTitle}>
+            Request Submitted!
+          </Text>
+          <Text style={styles.successMessage}>
+            Your service request has been submitted successfully. We will match you with an expert soon.
+          </Text>
+          <Text style={styles.redirectingText}>
+            Redirecting to dashboard...
+          </Text>
+          <ActivityIndicator color={Colors.primary} style={styles.redirectingSpinner} />
+        </View>
+      ) : (
       <ScrollView style={styles.scrollView}>
         <Container>
           <View style={styles.header}>
+              <TouchableOpacity 
+                style={styles.backButton}
+                onPress={() => router.back()}
+              >
+                <Ionicons name="arrow-back" size={24} color={Colors.muted} />
+                <Text style={styles.backButtonText}>Back</Text>
+              </TouchableOpacity>
             <Text variant="h2" weight="bold" style={styles.title}>
               Request Academic Service
             </Text>
@@ -175,6 +372,7 @@ const RequestServicePage = () => {
                 <TextInput
                   style={[styles.input, errors.title ? styles.inputError : null]}
                   placeholder="E.g., Essay on Climate Change"
+                    placeholderTextColor={Colors.muted + '80'}
                   value={formData.title}
                   onChangeText={(value) => handleChange('title', value)}
                 />
@@ -186,6 +384,7 @@ const RequestServicePage = () => {
                 <TextInput
                   style={[styles.textArea, errors.description ? styles.inputError : null]}
                   placeholder="Provide details about your assignment"
+                    placeholderTextColor={Colors.muted + '80'}
                   multiline
                   numberOfLines={6}
                   textAlignVertical="top"
@@ -201,35 +400,52 @@ const RequestServicePage = () => {
               <Text variant="h4" weight="semiBold" style={styles.sectionTitle}>
                 Service Type *
               </Text>
-              {errors.serviceType && <Text style={styles.errorText}>{errors.serviceType}</Text>}
-              
+                {errors.serviceId && <Text style={styles.errorText}>{errors.serviceId}</Text>}
+                
+                {loadingServices ? (
+                  <View style={styles.loadingContainer}>
+                    <ActivityIndicator color={Colors.primary} size="small" />
+                    <Text style={styles.loadingText}>Loading services...</Text>
+                  </View>
+                ) : (
               <View style={styles.serviceTypesGrid}>
-                {serviceTypes.map(service => (
+                    {services.map(service => (
                   <TouchableOpacity
                     key={service.id}
                     style={[
                       styles.serviceTypeCard,
-                      formData.serviceType === service.id && styles.selectedServiceType
+                          formData.serviceId === service.id && styles.selectedServiceType
                     ]}
                     onPress={() => selectServiceType(service.id)}
                   >
                     <Ionicons
-                      name={service.icon as any}
+                          name={getServiceIcon(service.id) as any}
                       size={24}
-                      color={formData.serviceType === service.id ? Colors.white : Colors.primary}
+                          color={formData.serviceId === service.id ? Colors.white : Colors.primary}
                     />
                     <Text
                       style={{
                         marginTop: Spacing.xs,
                         textAlign: 'center',
-                        ...(formData.serviceType === service.id ? { color: Colors.white } : {})
+                            ...(formData.serviceId === service.id ? { color: Colors.white } : {})
                       }}
                     >
                       {service.name}
                     </Text>
+                        <Text
+                          style={{
+                            fontSize: 12,
+                            marginTop: Spacing.xs / 2,
+                            textAlign: 'center',
+                            ...(formData.serviceId === service.id ? { color: Colors.white } : { color: Colors.muted })
+                          }}
+                        >
+                          ₦{service.basePrice.toLocaleString()}
+                        </Text>
                   </TouchableOpacity>
                 ))}
-              </View>
+                  </View>
+                )}
             </View>
 
             {/* Academic Level */}
@@ -272,10 +488,12 @@ const RequestServicePage = () => {
                 <Text style={styles.label}>Deadline *</Text>
                 <TextInput
                   style={[styles.input, errors.deadline ? styles.inputError : null]}
-                  placeholder="E.g., 15 July 2023"
+                    placeholder="E.g., 2023-07-15"
+                    placeholderTextColor={Colors.muted + '80'}
                   value={formData.deadline}
                   onChangeText={(value) => handleChange('deadline', value)}
                 />
+                  <Text style={styles.inputHelper}>Format: YYYY-MM-DD</Text>
                 {errors.deadline && <Text style={styles.errorText}>{errors.deadline}</Text>}
               </View>
 
@@ -284,12 +502,19 @@ const RequestServicePage = () => {
                 <TextInput
                   style={[styles.input, errors.budget ? styles.inputError : null]}
                   placeholder="Your budget in Naira"
+                    placeholderTextColor={Colors.muted + '80'}
                   keyboardType="numeric"
                   value={formData.budget}
                   onChangeText={(value) => handleChange('budget', value)}
                 />
                 {errors.budget && <Text style={styles.errorText}>{errors.budget}</Text>}
-              </View>
+                  {formData.serviceId && (
+                    <Text style={styles.basePriceHint}>
+                      Base price for {getServiceName(formData.serviceId)}: ₦
+                      {services.find(s => s.id === formData.serviceId)?.basePrice.toLocaleString() || '0'}
+                    </Text>
+                  )}
+                </View>
             </View>
 
             {/* File Attachments */}
@@ -342,14 +567,16 @@ const RequestServicePage = () => {
                 Additional Notes
               </Text>
               <TextInput
-                style={styles.textArea}
+                  style={[styles.textArea, errors.additionalNotes ? styles.inputError : null]}
                 placeholder="Any additional information or special requirements"
+                  placeholderTextColor={Colors.muted + '80'}
                 multiline
                 numberOfLines={4}
                 textAlignVertical="top"
                 value={formData.additionalNotes}
                 onChangeText={(value) => handleChange('additionalNotes', value)}
               />
+                {errors.additionalNotes && <Text style={styles.errorText}>{errors.additionalNotes}</Text>}
             </View>
 
             <Button
@@ -362,6 +589,7 @@ const RequestServicePage = () => {
           </Card>
         </Container>
       </ScrollView>
+      )}
     </KeyboardAvoidingView>
   );
 };
@@ -374,6 +602,15 @@ const styles = StyleSheet.create({
   header: {
     marginTop: Spacing.lg,
     marginBottom: Spacing.lg,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  backButtonText: {
+    marginLeft: Spacing.xs,
+    color: Colors.muted,
   },
   title: {
     marginBottom: Spacing.xs,
@@ -408,6 +645,11 @@ const styles = StyleSheet.create({
     padding: Spacing.sm,
     fontSize: 16,
   },
+  inputHelper: {
+    fontSize: 12,
+    color: Colors.muted,
+    marginTop: 4,
+  },
   textArea: {
     borderWidth: 1,
     borderColor: '#ddd',
@@ -423,6 +665,16 @@ const styles = StyleSheet.create({
     color: Colors.danger,
     marginTop: Spacing.xs,
     fontSize: 14,
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: Spacing.lg,
+  },
+  loadingText: {
+    marginLeft: Spacing.sm,
+    color: Colors.muted,
   },
   serviceTypesGrid: {
     flexDirection: 'row',
@@ -473,6 +725,11 @@ const styles = StyleSheet.create({
   selectedAcademicLevelText: {
     color: Colors.white,
   },
+  basePriceHint: {
+    fontSize: 12,
+    color: Colors.muted,
+    marginTop: Spacing.xs,
+  },
   uploadButton: {
     marginBottom: Spacing.md,
   },
@@ -509,6 +766,34 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginTop: Spacing.md,
+  },
+  successContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Spacing.xl,
+    backgroundColor: Colors.light,
+  },
+  successIconContainer: {
+    marginBottom: Spacing.lg,
+  },
+  successTitle: {
+    marginBottom: Spacing.md,
+    color: Colors.success,
+    textAlign: 'center',
+  },
+  successMessage: {
+    fontSize: 16,
+    color: Colors.dark,
+    textAlign: 'center',
+    marginBottom: Spacing.lg,
+  },
+  redirectingText: {
+    color: Colors.muted,
+    marginBottom: Spacing.sm,
+  },
+  redirectingSpinner: {
+    marginTop: Spacing.sm,
   },
 });
 

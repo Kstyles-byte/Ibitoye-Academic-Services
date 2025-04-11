@@ -7,7 +7,7 @@ import {
   createDocument 
 } from '../firestore';
 import { Expert, ExpertiseArea, ServiceAssignment, AssignmentStatus, Deliverable } from '../types';
-import { deleteLocalFile } from '../../storage/fileStorage';
+import { deleteLocalFile } from '../../cloudinary';
 
 const EXPERTS_COLLECTION = 'experts';
 const EXPERTISE_AREAS_COLLECTION = 'expertiseAreas';

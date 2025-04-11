@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, Alert } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, ActivityIndicator, TextInput, FlatList, Alert } from 'react-native';
 import { Text, Container, Card, Button, TopNav } from '../components/UI';
 import { Colors, Spacing } from '../constants';
 import { Ionicons } from '@expo/vector-icons';
@@ -41,25 +41,20 @@ const RequestMonitoring = () => {
     setLoading(true);
     try {
       const requestDocs = await getDocuments<ServiceRequest>('serviceRequests');
-      
-      // Fetch additional details for each request
-      const requestsWithDetails: RequestWithDetails[] = await Promise.all(
-        requestDocs.map(async (request): Promise<RequestWithDetails> => {
+      const requestsWithDetails = await Promise.all(
+        requestDocs.map(async (request) => {
           const enrichedRequest: RequestWithDetails = { ...request };
           
           try {
-            // Get service details
             const serviceData = await getDocumentById<Service>('services', request.serviceId);
             if (serviceData) {
               enrichedRequest.service = serviceData;
             }
             
-            // Get client details
             const clientData = await getDocumentById<Client>('clients', request.clientId);
             if (clientData) {
               enrichedRequest.client = { data: clientData };
               
-              // Get client user details
               try {
                 const userData = await getDocumentById<User>('users', clientData.userId);
                 if (userData) {
@@ -89,8 +84,6 @@ const RequestMonitoring = () => {
   const handleUpdateRequestStatus = async (requestId: string, newStatus: RequestStatus) => {
     try {
       await updateDocument<ServiceRequest>('serviceRequests', requestId, { status: newStatus });
-      
-      // Update local state
       setRequests(prevRequests => 
         prevRequests.map(request => 
           request.id === requestId ? { ...request, status: newStatus } : request
@@ -106,12 +99,10 @@ const RequestMonitoring = () => {
   };
 
   const filteredRequests = requests.filter(request => {
-    // Apply status filter
     if (statusFilter !== 'ALL' && request.status !== statusFilter) {
       return false;
     }
     
-    // Apply search filter
     const searchLower = searchQuery.toLowerCase();
     return (
       (request.subject && request.subject.toLowerCase().includes(searchLower)) ||
@@ -129,6 +120,34 @@ const RequestMonitoring = () => {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const StatusFilterItem = ({ status, label }: { status: RequestStatus | 'ALL', label: string }) => {
+    const isActive = statusFilter === status;
+    
+    // Adjust button style based on active state
+    return (
+      <TouchableOpacity 
+        style={{
+          ...styles.filterButton,
+          ...(isActive ? styles.activeFilter : {}),
+          // Ensure first button doesn't have left margin
+          marginLeft: status === 'ALL' ? 0 : 4
+        }}
+        onPress={() => setStatusFilter(status)}
+        activeOpacity={0.7}
+      >
+        <Text 
+          style={{
+            ...styles.filterText,
+            ...(isActive ? styles.activeFilterText : {})
+          }}
+          numberOfLines={1}
+        >
+          {label}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
   const RequestItem = ({ request }: { request: RequestWithDetails }) => {
     const statusColor = statusColors[request.status] || Colors.muted;
     
@@ -136,7 +155,7 @@ const RequestMonitoring = () => {
       <Card style={styles.requestCard}>
         <View style={styles.requestHeader}>
           <View style={styles.requestInfo}>
-            <Text variant="h3" weight="bold">{request.subject}</Text>
+            <Text variant="h3" weight="bold" style={styles.requestSubject}>{request.subject}</Text>
             <Text style={styles.serviceInfo}>
               {request.service?.name || 'Unknown Service'} • {request.academicLevel}
             </Text>
@@ -211,224 +230,230 @@ const RequestMonitoring = () => {
     return (
       <View style={styles.modalOverlay}>
         <Card style={styles.modalContainer}>
-          <ScrollView style={styles.modalScroll}>
-            <View style={styles.modalHeader}>
-              <Text variant="h2" weight="bold">Request Details</Text>
-              <TouchableOpacity 
-                onPress={() => setSelectedRequest(null)}
-                style={styles.closeButton}
-              >
-                <Ionicons name="close" size={24} color={Colors.dark} />
-              </TouchableOpacity>
-            </View>
-            
-            <View style={styles.detailSection}>
-              <Text style={styles.detailSectionTitle}>Subject</Text>
-              <Text style={styles.detailText}>{selectedRequest.subject}</Text>
-            </View>
-            
-            <View style={styles.detailSection}>
-              <Text style={styles.detailSectionTitle}>Service</Text>
-              <Text style={styles.detailText}>
-                {selectedRequest.service?.name || 'Unknown Service'}
-              </Text>
-              <Text style={styles.detailSubtext}>
-                Category: {selectedRequest.service?.category || 'N/A'}
-              </Text>
-              <Text style={styles.detailSubtext}>
-                Base Price: ₦{selectedRequest.service?.basePrice.toFixed(2) || 'N/A'}
-              </Text>
-            </View>
-            
-            <View style={styles.detailSection}>
-              <Text style={styles.detailSectionTitle}>Client</Text>
-              <Text style={styles.detailText}>
-                {selectedRequest.client?.user?.name || 'Unknown Client'}
-              </Text>
-              <Text style={styles.detailSubtext}>
-                Email: {selectedRequest.client?.user?.email || 'N/A'}
-              </Text>
-              <Text style={styles.detailSubtext}>
-                Institution: {selectedRequest.client?.data.institution || 'N/A'}
-              </Text>
-            </View>
-            
-            <View style={styles.detailSection}>
-              <Text style={styles.detailSectionTitle}>Academic Details</Text>
-              <Text style={styles.detailText}>
-                Level: {selectedRequest.academicLevel}
-              </Text>
-              <Text style={styles.detailSubtext}>
-                Deadline: {formatDate(selectedRequest.deadline)}
-              </Text>
-            </View>
-            
-            <View style={styles.detailSection}>
-              <Text style={styles.detailSectionTitle}>Requirements</Text>
-              <Text style={styles.detailText}>{selectedRequest.requirements}</Text>
-            </View>
-            
-            {selectedRequest.additionalInfo && (
+          <View style={styles.modalHeader}>
+            <Text variant="h2" weight="bold">Request Details</Text>
+            <TouchableOpacity 
+              onPress={() => setSelectedRequest(null)}
+              style={styles.closeButton}
+            >
+              <Ionicons name="close" size={24} color={Colors.dark} />
+            </TouchableOpacity>
+          </View>
+          
+          <FlatList
+            data={[
+              { 
+                id: 'subject',
+                title: 'Subject',
+                content: selectedRequest.subject
+              },
+              {
+                id: 'service',
+                title: 'Service',
+                content: selectedRequest.service?.name || 'Unknown Service',
+                subcontent: [
+                  `Category: ${selectedRequest.service?.category || 'N/A'}`,
+                  `Base Price: ₦${selectedRequest.service?.basePrice.toFixed(2) || 'N/A'}`
+                ]
+              },
+              {
+                id: 'client',
+                title: 'Client',
+                content: selectedRequest.client?.user?.name || 'Unknown Client',
+                subcontent: [
+                  `Email: ${selectedRequest.client?.user?.email || 'N/A'}`,
+                  `Institution: ${selectedRequest.client?.data.institution || 'N/A'}`
+                ]
+              },
+              {
+                id: 'academic',
+                title: 'Academic Details',
+                content: `Level: ${selectedRequest.academicLevel}`,
+                subcontent: [`Deadline: ${formatDate(selectedRequest.deadline)}`]
+              },
+              {
+                id: 'requirements',
+                title: 'Requirements',
+                content: selectedRequest.requirements
+              },
+              ...(selectedRequest.additionalInfo ? [{
+                id: 'additional',
+                title: 'Additional Information',
+                content: selectedRequest.additionalInfo
+              }] : []),
+              {
+                id: 'status',
+                title: 'Status',
+                customContent: (
+                  <View style={{
+                    ...styles.statusLargeBadge,
+                    backgroundColor: statusColors[selectedRequest.status] + '20'
+                  }}>
+                    <Text style={{
+                      ...styles.statusLargeText,
+                      color: statusColors[selectedRequest.status]
+                    }}>
+                      {selectedRequest.status}
+                    </Text>
+                  </View>
+                )
+              },
+              {
+                id: 'timeline',
+                title: 'Timeline',
+                subcontent: [
+                  `Created: ${formatDate(selectedRequest.createdAt)}`,
+                  `Last Updated: ${formatDate(selectedRequest.updatedAt)}`
+                ]
+              }
+            ]}
+            renderItem={({ item }) => (
               <View style={styles.detailSection}>
-                <Text style={styles.detailSectionTitle}>Additional Information</Text>
-                <Text style={styles.detailText}>{selectedRequest.additionalInfo}</Text>
+                <Text style={styles.detailSectionTitle}>{item.title}</Text>
+                {item.content && <Text style={styles.detailContent}>{item.content}</Text>}
+                {item.customContent}
+                {item.subcontent?.map((subtext, index) => (
+                  <Text key={index} style={styles.detailSubtext}>{subtext}</Text>
+                ))}
               </View>
             )}
-            
-            <View style={styles.detailSection}>
-              <Text style={styles.detailSectionTitle}>Status</Text>
-              <View style={{
-                ...styles.statusLargeBadge,
-                backgroundColor: statusColors[selectedRequest.status] + '20'
-              }}>
-                <Text style={{
-                  ...styles.statusLargeText,
-                  color: statusColors[selectedRequest.status]
-                }}>
-                  {selectedRequest.status}
-                </Text>
+            keyExtractor={item => item.id}
+            contentContainerStyle={styles.modalScrollContent}
+            ListFooterComponent={
+              <View style={styles.modalActions}>
+                {selectedRequest.status === RequestStatus.PENDING && (
+                  <>
+                    <Button
+                      title="Approve Request"
+                      onPress={() => handleUpdateRequestStatus(selectedRequest.id, RequestStatus.APPROVED)}
+                      style={styles.modalButton}
+                    />
+                    <Button
+                      title="Reject Request"
+                      onPress={() => handleUpdateRequestStatus(selectedRequest.id, RequestStatus.REJECTED)}
+                      variant="danger"
+                      style={styles.modalButton}
+                    />
+                  </>
+                )}
+                
+                {selectedRequest.status === RequestStatus.APPROVED && (
+                  <Button
+                    title="Mark as Assigned"
+                    onPress={() => handleUpdateRequestStatus(selectedRequest.id, RequestStatus.ASSIGNED)}
+                    style={styles.modalButton}
+                  />
+                )}
+                
+                {selectedRequest.status === RequestStatus.IN_PROGRESS && (
+                  <Button
+                    title="Mark as Completed"
+                    onPress={() => handleUpdateRequestStatus(selectedRequest.id, RequestStatus.COMPLETED)}
+                    style={styles.modalButton}
+                  />
+                )}
+                
+                <Button
+                  title="Close"
+                  onPress={() => setSelectedRequest(null)}
+                  variant="secondary"
+                  style={styles.modalButton}
+                />
               </View>
-            </View>
-            
-            <View style={styles.detailSection}>
-              <Text style={styles.detailSectionTitle}>Timeline</Text>
-              <Text style={styles.detailSubtext}>
-                Created: {formatDate(selectedRequest.createdAt)}
-              </Text>
-              <Text style={styles.detailSubtext}>
-                Last Updated: {formatDate(selectedRequest.updatedAt)}
-              </Text>
-            </View>
-            
-            <View style={styles.modalActions}>
-              {selectedRequest.status === RequestStatus.PENDING && (
-                <>
-                  <Button
-                    title="Approve Request"
-                    onPress={() => handleUpdateRequestStatus(selectedRequest.id, RequestStatus.APPROVED)}
-                    style={{...styles.modalButton, marginRight: Spacing.sm}}
-                  />
-                  <Button
-                    title="Reject Request"
-                    onPress={() => handleUpdateRequestStatus(selectedRequest.id, RequestStatus.REJECTED)}
-                    variant="danger"
-                    style={{...styles.modalButton, marginRight: Spacing.sm}}
-                  />
-                </>
-              )}
-              
-              {selectedRequest.status === RequestStatus.APPROVED && (
-                <Button
-                  title="Mark as Assigned"
-                  onPress={() => handleUpdateRequestStatus(selectedRequest.id, RequestStatus.ASSIGNED)}
-                  style={{...styles.modalButton, marginRight: Spacing.sm}}
-                />
-              )}
-              
-              {selectedRequest.status === RequestStatus.IN_PROGRESS && (
-                <Button
-                  title="Mark as Completed"
-                  onPress={() => handleUpdateRequestStatus(selectedRequest.id, RequestStatus.COMPLETED)}
-                  style={{...styles.modalButton, marginRight: Spacing.sm}}
-                />
-              )}
-              
-              <Button
-                title="Close"
-                onPress={() => setSelectedRequest(null)}
-                variant="secondary"
-                style={styles.modalButton}
-              />
-            </View>
-          </ScrollView>
+            }
+          />
         </Card>
       </View>
     );
   };
 
-  const renderStatusFilter = (status: RequestStatus | 'ALL', label: string) => (
-    <TouchableOpacity 
-      style={{
-        ...styles.filterButton,
-        ...(statusFilter === status ? styles.activeFilter : {})
-      }}
-      onPress={() => setStatusFilter(status)}
-    >
-      <Text style={{
-        ...styles.filterText,
-        ...(statusFilter === status ? styles.activeFilterText : {})
-      }}>{label}</Text>
-    </TouchableOpacity>
-  );
-
   return (
-    <>
+    <View style={styles.screen}>
+      {/* Header */}
       <TopNav title="Request Monitoring" />
-      <Container>
+      
+      {/* Main content */}
+      <View style={styles.container}>
+        {/* Search bar */}
         <View style={styles.searchContainer}>
           <Ionicons name="search" size={20} color={Colors.muted} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search requests..."
+            placeholderTextColor={Colors.muted}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-          {searchQuery !== '' && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={20} color={Colors.muted} />
-            </TouchableOpacity>
-          )}
         </View>
-
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          style={styles.filterScrollView}
-          contentContainerStyle={styles.filterContainer}
-        >
-          {renderStatusFilter('ALL', 'All Requests')}
-          {renderStatusFilter(RequestStatus.PENDING, 'Pending')}
-          {renderStatusFilter(RequestStatus.APPROVED, 'Approved')}
-          {renderStatusFilter(RequestStatus.ASSIGNED, 'Assigned')}
-          {renderStatusFilter(RequestStatus.IN_PROGRESS, 'In Progress')}
-          {renderStatusFilter(RequestStatus.COMPLETED, 'Completed')}
-          {renderStatusFilter(RequestStatus.CANCELLED, 'Cancelled')}
-          {renderStatusFilter(RequestStatus.REJECTED, 'Rejected')}
-        </ScrollView>
-
+        
+        {/* Status filters */}
+        <View style={styles.filtersWrapper}>
+          <FlatList
+            horizontal
+            data={[
+              { status: 'ALL', label: 'All Requests' },
+              { status: RequestStatus.PENDING, label: 'Pending' },
+              { status: RequestStatus.APPROVED, label: 'Approved' },
+              { status: RequestStatus.ASSIGNED, label: 'Assigned' },
+              { status: RequestStatus.IN_PROGRESS, label: 'In Progress' },
+              { status: RequestStatus.COMPLETED, label: 'Completed' },
+              { status: RequestStatus.CANCELLED, label: 'Cancelled' },
+              { status: RequestStatus.REJECTED, label: 'Rejected' }
+            ]}
+            renderItem={({ item }) => <StatusFilterItem status={item.status as RequestStatus | 'ALL'} label={item.label} />}
+            keyExtractor={item => item.status}
+            showsHorizontalScrollIndicator={false}
+            style={styles.filterList}
+            contentContainerStyle={styles.filterContainer}
+            bounces={false}
+            snapToAlignment="start"
+            initialNumToRender={5}
+          />
+        </View>
+        
+        {/* Request cards or loading/empty state */}
         {loading ? (
-          <View style={styles.loadingContainer}>
+          <View style={styles.centerContainer}>
             <ActivityIndicator size="large" color={Colors.primary} />
-            <Text style={styles.loadingText}>Loading requests...</Text>
+            <Text style={styles.messageText}>Loading requests...</Text>
+          </View>
+        ) : filteredRequests.length === 0 ? (
+          <View style={styles.centerContainer}>
+            <Ionicons name="document-text" size={48} color={Colors.muted} />
+            <Text style={styles.messageText}>
+              {searchQuery 
+                ? 'No requests matching your search' 
+                : statusFilter !== 'ALL'
+                  ? `No ${statusFilter.toLowerCase()} requests found`
+                  : 'No requests found'}
+            </Text>
           </View>
         ) : (
-          <ScrollView style={styles.requestsList} showsVerticalScrollIndicator={false}>
-            {filteredRequests.length === 0 ? (
-              <View style={styles.emptyState}>
-                <Ionicons name="document-text" size={48} color={Colors.muted} />
-                <Text style={styles.emptyStateText}>
-                  {searchQuery 
-                    ? 'No requests matching your search' 
-                    : statusFilter !== 'ALL'
-                      ? `No ${statusFilter.toLowerCase()} requests found`
-                      : 'No requests found'}
-                </Text>
-              </View>
-            ) : (
-              filteredRequests.map(request => (
-                <RequestItem key={request.id} request={request} />
-              ))
-            )}
-          </ScrollView>
+          <FlatList
+            data={filteredRequests}
+            renderItem={({ item }) => <RequestItem request={item} />}
+            keyExtractor={item => item.id}
+            contentContainerStyle={styles.requestList}
+            showsVerticalScrollIndicator={false}
+          />
         )}
-
-        {selectedRequest && <RequestDetailModal />}
-      </Container>
-    </>
+      </View>
+      
+      {/* Modal for request details */}
+      {selectedRequest && <RequestDetailModal />}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: Colors.white,
+  },
+  container: {
+    flex: 1,
+    padding: Spacing.md,
+  },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -436,56 +461,72 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: Spacing.sm,
     marginBottom: Spacing.md,
+    height: 40,
+    borderWidth: 1,
+    borderColor: Colors.light,
   },
   searchIcon: {
     marginRight: Spacing.xs,
   },
   searchInput: {
     flex: 1,
-    height: 40,
     color: Colors.dark,
   },
-  filterScrollView: {
-    marginBottom: Spacing.md,
+  filtersWrapper: {
+    marginBottom: Spacing.lg,
+  },
+  filterList: {
     height: 40,
   },
   filterContainer: {
-    paddingRight: Spacing.md,
-    height: 36,
+    paddingLeft: 0,
+    paddingRight: Spacing.xl,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   filterButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
     marginRight: 8,
     backgroundColor: Colors.background,
+    minWidth: 80,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.light,
   },
   activeFilter: {
     backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
   },
   filterText: {
+    fontSize: 14,
     color: Colors.dark,
     fontWeight: '500',
+    textAlign: 'center',
   },
   activeFilterText: {
     color: Colors.white,
     fontWeight: 'bold',
   },
-  loadingContainer: {
+  centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  loadingText: {
+  messageText: {
     marginTop: Spacing.sm,
     color: Colors.muted,
+    textAlign: 'center',
   },
-  requestsList: {
-    flex: 1,
+  requestList: {
+    paddingBottom: Spacing.md,
   },
   requestCard: {
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
     padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.light,
   },
   requestHeader: {
     flexDirection: 'row',
@@ -496,6 +537,9 @@ const styles = StyleSheet.create({
   requestInfo: {
     flex: 1,
     marginRight: Spacing.sm,
+  },
+  requestSubject: {
+    flexShrink: 1,
   },
   serviceInfo: {
     color: Colors.muted,
@@ -534,17 +578,6 @@ const styles = StyleSheet.create({
     marginLeft: Spacing.xs,
     minWidth: 90,
   },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: Spacing.xl,
-  },
-  emptyStateText: {
-    color: Colors.muted,
-    marginTop: Spacing.sm,
-    textAlign: 'center',
-  },
   modalOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -555,10 +588,9 @@ const styles = StyleSheet.create({
   modalContainer: {
     width: '90%',
     maxHeight: '80%',
-    padding: 0,
-  },
-  modalScroll: {
-    padding: Spacing.lg,
+    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.light,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -568,6 +600,9 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     padding: 4,
+  },
+  modalScrollContent: {
+    paddingBottom: Spacing.lg,
   },
   detailSection: {
     marginBottom: Spacing.md,
@@ -579,6 +614,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: Colors.dark,
     marginBottom: 4,
+  },
+  detailContent: {
+    color: Colors.dark,
   },
   detailSubtext: {
     color: Colors.muted,
@@ -600,11 +638,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'flex-end',
+    gap: Spacing.sm,
     marginTop: Spacing.md,
   },
   modalButton: {
     minWidth: 140,
-    marginBottom: Spacing.sm,
   },
 });
 

@@ -6,7 +6,7 @@ import {
   deleteDocument 
 } from '../firestore';
 import { ServiceRequest, RequestStatus, Attachment, Message } from '../types';
-import { deleteLocalFile } from '../../storage/fileStorage';
+import { deleteLocalFile } from '../../cloudinary';
 
 const SERVICE_REQUESTS_COLLECTION = 'serviceRequests';
 const ATTACHMENTS_COLLECTION = 'attachments';
