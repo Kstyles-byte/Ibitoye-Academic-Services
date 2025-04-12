@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, TouchableOpacity, ActivityIndicator, TextInput, FlatList, Alert } from 'react-native';
 import { Text, Container, Card, Button, TopNav } from '../components/UI';
+import { SafeIcon } from '../components/UI/SafeIcon';
 import { Colors, Spacing } from '../constants';
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { getDocuments, updateDocument, getDocumentById } from '../lib/db/firestore';
 import { ServiceRequest, RequestStatus, Client, User, Service } from '../lib/db/types';
@@ -122,28 +122,25 @@ const RequestMonitoring = () => {
 
   const StatusFilterItem = ({ status, label }: { status: RequestStatus | 'ALL', label: string }) => {
     const isActive = statusFilter === status;
+    let backgroundColor = Colors.light;
+    let textColor = Colors.muted;
     
-    // Adjust button style based on active state
+    if (isActive) {
+      if (status === 'ALL') {
+        backgroundColor = Colors.primary + '20';
+        textColor = Colors.primary;
+      } else {
+        backgroundColor = statusColors[status] + '20';
+        textColor = statusColors[status];
+      }
+    }
+    
     return (
       <TouchableOpacity 
-        style={{
-          ...styles.filterButton,
-          ...(isActive ? styles.activeFilter : {}),
-          // Ensure first button doesn't have left margin
-          marginLeft: status === 'ALL' ? 0 : 4
-        }}
+        style={[styles.filterButton, { backgroundColor }]}
         onPress={() => setStatusFilter(status)}
-        activeOpacity={0.7}
       >
-        <Text 
-          style={{
-            ...styles.filterText,
-            ...(isActive ? styles.activeFilterText : {})
-          }}
-          numberOfLines={1}
-        >
-          {label}
-        </Text>
+        <Text style={{ ...styles.filterText, color: textColor }}>{label}</Text>
       </TouchableOpacity>
     );
   };
@@ -175,21 +172,21 @@ const RequestMonitoring = () => {
         
         <View style={styles.requestDetails}>
           <View style={styles.detailItem}>
-            <Ionicons name="person-outline" size={16} color={Colors.muted} />
+            <SafeIcon name="User" size={16} color={Colors.muted} />
             <Text style={styles.detailText}>
               {request.client?.user?.name || 'Unknown Client'}
             </Text>
           </View>
           
           <View style={styles.detailItem}>
-            <Ionicons name="calendar-outline" size={16} color={Colors.muted} />
+            <SafeIcon name="Calendar" size={16} color={Colors.muted} />
             <Text style={styles.detailText}>
               Deadline: {formatDate(request.deadline)}
             </Text>
           </View>
           
           <View style={styles.detailItem}>
-            <Ionicons name="time-outline" size={16} color={Colors.muted} />
+            <SafeIcon name="Clock" size={16} color={Colors.muted} />
             <Text style={styles.detailText}>
               Created: {formatDate(request.createdAt)}
             </Text>
@@ -236,7 +233,7 @@ const RequestMonitoring = () => {
               onPress={() => setSelectedRequest(null)}
               style={styles.closeButton}
             >
-              <Ionicons name="close" size={24} color={Colors.dark} />
+              <SafeIcon name="X" size={24} color={Colors.dark} />
             </TouchableOpacity>
           </View>
           
@@ -319,49 +316,32 @@ const RequestMonitoring = () => {
             )}
             keyExtractor={item => item.id}
             contentContainerStyle={styles.modalScrollContent}
-            ListFooterComponent={
-              <View style={styles.modalActions}>
-                {selectedRequest.status === RequestStatus.PENDING && (
-                  <>
-                    <Button
-                      title="Approve Request"
-                      onPress={() => handleUpdateRequestStatus(selectedRequest.id, RequestStatus.APPROVED)}
-                      style={styles.modalButton}
-                    />
-                    <Button
-                      title="Reject Request"
-                      onPress={() => handleUpdateRequestStatus(selectedRequest.id, RequestStatus.REJECTED)}
-                      variant="danger"
-                      style={styles.modalButton}
-                    />
-                  </>
-                )}
-                
-                {selectedRequest.status === RequestStatus.APPROVED && (
-                  <Button
-                    title="Mark as Assigned"
-                    onPress={() => handleUpdateRequestStatus(selectedRequest.id, RequestStatus.ASSIGNED)}
-                    style={styles.modalButton}
-                  />
-                )}
-                
-                {selectedRequest.status === RequestStatus.IN_PROGRESS && (
-                  <Button
-                    title="Mark as Completed"
-                    onPress={() => handleUpdateRequestStatus(selectedRequest.id, RequestStatus.COMPLETED)}
-                    style={styles.modalButton}
-                  />
-                )}
-                
+          />
+          
+          <View style={styles.modalActions}>
+            <Button 
+              title="Close" 
+              onPress={() => setSelectedRequest(null)} 
+              variant="secondary"
+              style={styles.modalButton}
+            />
+            
+            {selectedRequest.status === RequestStatus.PENDING && (
+              <>
                 <Button
-                  title="Close"
-                  onPress={() => setSelectedRequest(null)}
-                  variant="secondary"
+                  title="Approve"
+                  onPress={() => handleUpdateRequestStatus(selectedRequest.id, RequestStatus.APPROVED)}
                   style={styles.modalButton}
                 />
-              </View>
-            }
-          />
+                <Button
+                  title="Reject"
+                  onPress={() => handleUpdateRequestStatus(selectedRequest.id, RequestStatus.REJECTED)}
+                  variant="danger"
+                  style={styles.modalButton}
+                />
+              </>
+            )}
+          </View>
         </Card>
       </View>
     );
@@ -376,7 +356,7 @@ const RequestMonitoring = () => {
       <View style={styles.container}>
         {/* Search bar */}
         <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color={Colors.muted} style={styles.searchIcon} />
+          <SafeIcon name="Search" size={20} color={Colors.muted} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search requests..."
@@ -419,7 +399,7 @@ const RequestMonitoring = () => {
           </View>
         ) : filteredRequests.length === 0 ? (
           <View style={styles.centerContainer}>
-            <Ionicons name="document-text" size={48} color={Colors.muted} />
+            <SafeIcon name="FileText" size={48} color={Colors.muted} />
             <Text style={styles.messageText}>
               {searchQuery 
                 ? 'No requests matching your search' 
@@ -448,7 +428,7 @@ const RequestMonitoring = () => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.background,
   },
   container: {
     flex: 1,
@@ -457,86 +437,80 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.white,
     borderRadius: 8,
     paddingHorizontal: Spacing.sm,
+    paddingVertical: 8,
     marginBottom: Spacing.md,
-    height: 40,
-    borderWidth: 1,
-    borderColor: Colors.light,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   searchIcon: {
     marginRight: Spacing.xs,
   },
   searchInput: {
     flex: 1,
+    height: 40,
     color: Colors.dark,
   },
   filtersWrapper: {
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
   },
   filterList: {
-    height: 40,
+    maxHeight: 50,
   },
   filterContainer: {
-    paddingLeft: 0,
-    paddingRight: Spacing.xl,
-    flexDirection: 'row',
-    alignItems: 'center',
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.sm,
   },
   filterButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    marginRight: 8,
-    backgroundColor: Colors.background,
-    minWidth: 80,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.light,
-  },
-  activeFilter: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: 16,
+    marginRight: Spacing.xs,
   },
   filterText: {
     fontSize: 14,
-    color: Colors.dark,
     fontWeight: '500',
-    textAlign: 'center',
-  },
-  activeFilterText: {
-    color: Colors.white,
-    fontWeight: 'bold',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: Spacing.xl,
   },
   messageText: {
-    marginTop: Spacing.sm,
+    marginTop: Spacing.md,
     color: Colors.muted,
     textAlign: 'center',
   },
   requestList: {
-    paddingBottom: Spacing.md,
+    paddingBottom: Spacing.xl,
   },
   requestCard: {
     marginBottom: Spacing.md,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.light,
+    padding: 0,
+    overflow: 'hidden',
   },
   requestHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: Spacing.sm,
+    padding: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light,
   },
   requestInfo: {
     flex: 1,
-    marginRight: Spacing.sm,
+    marginRight: Spacing.md,
   },
   requestSubject: {
     flexShrink: 1,
@@ -556,6 +530,8 @@ const styles = StyleSheet.create({
   },
   requestDetails: {
     marginBottom: Spacing.sm,
+    padding: Spacing.md,
+    paddingTop: 0,
   },
   detailItem: {
     flexDirection: 'row',
@@ -573,6 +549,7 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.light,
     paddingTop: Spacing.sm,
     marginTop: Spacing.xs,
+    padding: Spacing.md,
   },
   actionButton: {
     marginLeft: Spacing.xs,

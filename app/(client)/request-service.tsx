@@ -14,7 +14,6 @@ import { Container, Text, Button, Card } from '../components/UI';
 import { SafeIcon } from '../components/UI/SafeIcon';
 import { Colors, Spacing, Layout } from '../constants';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { getAllServices, getServiceById } from '../lib/db/repositories/serviceRepository';
 import { createServiceRequest, addAttachment } from '../lib/db/repositories/serviceRequestRepository';
 import { Service, RequestStatus } from '../lib/db/types';
@@ -303,21 +302,20 @@ const RequestServicePage = () => {
   };
 
   const getServiceIcon = (serviceId: string) => {
-    // Map service categories to icons
     const service = services.find(s => s.id === serviceId);
-    if (!service) return 'document-text';
-
-    // Map based on category name
-    const category = service.category.toLowerCase();
-    if (category.includes('essay')) return 'pencil';
-    if (category.includes('research')) return 'newspaper';
-    if (category.includes('thesis') || category.includes('dissertation')) return 'school';
-    if (category.includes('programming') || category.includes('coding')) return 'code-slash';
-    if (category.includes('exam')) return 'clipboard';
-    if (category.includes('assignment')) return 'document-text';
+    if (!service) return "FileText";
     
-    // Default icon
-    return 'document-text';
+    const category = service.category.toLowerCase();
+    if (category.includes('essay') || category.includes('writing')) return "Edit";
+    if (category.includes('research')) return "Search";
+    if (category.includes('presentation')) return "BarChart";
+    if (category.includes('review') || category.includes('editing')) return "FileEdit";
+    if (category.includes('math') || category.includes('statistic')) return "Calculator";
+    if (category.includes('programming')) return "Code";
+    if (category.includes('science')) return "Microscope";
+    if (category.includes('language')) return "BookOpen";
+    
+    return "FileText";
   };
 
   return (
@@ -349,7 +347,7 @@ const RequestServicePage = () => {
                 style={styles.backButton}
                 onPress={() => router.back()}
               >
-                <Ionicons name="arrow-back" size={24} color={Colors.muted} />
+                <SafeIcon name="ChevronLeft" size={24} color={Colors.muted} />
                 <Text style={styles.backButtonText}>Back</Text>
               </TouchableOpacity>
             <Text variant="h2" weight="bold" style={styles.title}>
@@ -418,7 +416,7 @@ const RequestServicePage = () => {
                     ]}
                     onPress={() => selectServiceType(service.id)}
                   >
-                    <Ionicons
+                    <SafeIcon
                           name={getServiceIcon(service.id) as any}
                       size={24}
                           color={formData.serviceId === service.id ? Colors.white : Colors.primary}
@@ -549,11 +547,11 @@ const RequestServicePage = () => {
                   {uploadedFiles.map((file, index) => (
                     <View key={index} style={styles.uploadedFile}>
                       <View style={styles.fileInfo}>
-                        <Ionicons name="document" size={18} color={Colors.primary} />
+                        <SafeIcon name="File" size={18} color={Colors.primary} />
                         <Text style={styles.fileName}>{file}</Text>
                       </View>
                       <TouchableOpacity onPress={() => removeFile(index)}>
-                        <Ionicons name="trash" size={18} color={Colors.danger} />
+                        <SafeIcon name="X" size={18} color={Colors.danger} />
                       </TouchableOpacity>
                     </View>
                   ))}

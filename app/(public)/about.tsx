@@ -1,9 +1,9 @@
 import React from 'react';
 import { StyleSheet, View, ScrollView, Image } from 'react-native';
 import { Container, Text, Button, Card } from '../components/UI';
+import { SafeIcon } from '../components/UI/SafeIcon';
 import { Colors, Spacing, Layout } from '../constants';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 
 const AboutPage = () => {
   const router = useRouter();
@@ -44,25 +44,25 @@ const AboutPage = () => {
       id: 1,
       title: 'Academic Excellence',
       description: 'We are committed to maintaining the highest standards of academic quality in all our services.',
-      icon: 'school',
+      icon: 'BookOpen',
     },
     {
       id: 2,
       title: 'Integrity',
       description: 'We operate with complete transparency and adhere to strict ethical guidelines in all our interactions.',
-      icon: 'shield-checkmark',
+      icon: 'Shield',
     },
     {
       id: 3,
       title: 'Student Success',
       description: 'We measure our success by the academic achievements and satisfaction of our clients.',
-      icon: 'trophy',
+      icon: 'Award',
     },
     {
       id: 4,
       title: 'Accessibility',
       description: 'We strive to make high-quality academic assistance accessible to students of all backgrounds.',
-      icon: 'people',
+      icon: 'Users',
     },
   ];
 
@@ -117,7 +117,7 @@ const AboutPage = () => {
             {values.map((value) => (
               <Card key={value.id} style={styles.valueCard}>
                 <View style={styles.valueIconContainer}>
-                  <Ionicons name={value.icon as any} size={28} color={Colors.white} />
+                  <SafeIcon name={value.icon as any} size={28} color={Colors.white} />
                 </View>
                 <Text variant="h5" weight="semiBold" style={styles.valueTitle}>
                   {value.title}
@@ -168,7 +168,7 @@ const AboutPage = () => {
             <View style={styles.credentialsList}>
               {credentials.map((credential, index) => (
                 <View key={index} style={styles.credentialItem}>
-                  <Ionicons name="checkmark-circle" size={18} color={Colors.success} />
+                  <SafeIcon name="Check" size={18} color={Colors.success} />
                   <Text style={styles.credentialText}>{credential}</Text>
                 </View>
               ))}

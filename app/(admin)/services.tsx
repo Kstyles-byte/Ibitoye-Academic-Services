@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, Alert, Switch } from 'react-native';
 import { Text, Container, Card, Button, TopNav } from '../components/UI';
+import { SafeIcon } from '../components/UI/SafeIcon';
 import { Colors, Spacing } from '../constants';
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { getDocuments, updateDocument, createDocument, deleteDocument } from '../lib/db/firestore';
 import { Service } from '../lib/db/types';
@@ -161,7 +161,7 @@ const ServiceManagement = () => {
               });
             }}
           >
-            <Ionicons name="create-outline" size={20} color={Colors.primary} />
+            <SafeIcon name="Edit" size={20} color={Colors.primary} />
             <Text style={{...styles.actionText, color: Colors.primary}}>Edit</Text>
           </TouchableOpacity>
 
@@ -169,7 +169,7 @@ const ServiceManagement = () => {
             style={styles.actionButton}
             onPress={() => handleDeleteService(service.id)}
           >
-            <Ionicons name="trash-outline" size={20} color={Colors.danger} />
+            <SafeIcon name="Trash" size={20} color={Colors.danger} />
             <Text style={{...styles.actionText, color: Colors.danger}}>Delete</Text>
           </TouchableOpacity>
 
@@ -177,8 +177,8 @@ const ServiceManagement = () => {
             style={styles.actionButton}
             onPress={() => handleUpdateService(service.id, { isActive: !service.isActive })}
           >
-            <Ionicons 
-              name={service.isActive ? "eye-off-outline" : "eye-outline"} 
+            <SafeIcon 
+              name={service.isActive ? "EyeOff" : "Eye"} 
               size={20} 
               color={service.isActive ? Colors.warning : Colors.success} 
             />
@@ -298,7 +298,7 @@ const ServiceManagement = () => {
       <Container>
         <View style={styles.toolbar}>
           <View style={styles.searchContainer}>
-            <Ionicons name="search" size={20} color={Colors.muted} style={styles.searchIcon} />
+            <SafeIcon name="Search" size={20} color={Colors.muted} style={styles.searchIcon} />
             <TextInput
               style={styles.searchInput}
               placeholder="Search services"
@@ -307,7 +307,7 @@ const ServiceManagement = () => {
             />
             {searchQuery !== '' && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Ionicons name="close-circle" size={20} color={Colors.muted} />
+                <SafeIcon name="X" size={20} color={Colors.muted} />
               </TouchableOpacity>
             )}
           </View>
@@ -319,7 +319,7 @@ const ServiceManagement = () => {
               setShowAddModal(true);
             }}
           >
-            <Ionicons name="add" size={24} color={Colors.white} />
+            <SafeIcon name="Plus" size={24} color={Colors.white} />
           </TouchableOpacity>
         </View>
 
@@ -332,7 +332,7 @@ const ServiceManagement = () => {
           <ScrollView style={styles.serviceList} showsVerticalScrollIndicator={false}>
             {filteredServices.length === 0 ? (
               <View style={styles.emptyState}>
-                <Ionicons name="briefcase" size={48} color={Colors.muted} />
+                <SafeIcon name="Briefcase" size={48} color={Colors.muted} />
                 <Text style={styles.emptyStateText}>
                   {searchQuery ? 'No services matching your search' : 'No services found'}
                 </Text>
@@ -360,18 +360,13 @@ const ServiceManagement = () => {
 };
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: Spacing.xl,
-    marginBottom: Spacing.md,
-  },
-  backButton: {
-    marginRight: Spacing.sm,
+  container: {
+    flex: 1,
   },
   toolbar: {
     flexDirection: 'row',
-    marginBottom: Spacing.md,
+    alignItems: 'center',
+    marginVertical: Spacing.md,
   },
   searchContainer: {
     flex: 1,
@@ -379,46 +374,57 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.background,
     borderRadius: 8,
-    paddingHorizontal: Spacing.sm,
+    padding: Spacing.sm,
     marginRight: Spacing.sm,
   },
   searchIcon: {
-    marginRight: Spacing.xs,
+    marginRight: 8,
   },
   searchInput: {
     flex: 1,
-    height: 40,
     color: Colors.dark,
+    fontSize: 16,
   },
   addButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
     backgroundColor: Colors.primary,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: Spacing.sm,
-    color: Colors.muted,
+    shadowColor: Colors.dark,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
   serviceList: {
     flex: 1,
   },
   serviceCard: {
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
     padding: Spacing.md,
   },
   serviceHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing.xs,
+    marginBottom: Spacing.sm,
+  },
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  activeBadge: {
+    backgroundColor: Colors.success + '20',
+  },
+  inactiveBadge: {
+    backgroundColor: Colors.warning + '20',
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   categoryText: {
     color: Colors.dark,
@@ -426,27 +432,21 @@ const styles = StyleSheet.create({
   },
   priceText: {
     color: Colors.primary,
-    fontWeight: 'bold',
+    fontWeight: '500',
     marginBottom: 4,
   },
   descriptionText: {
     color: Colors.muted,
-    marginBottom: Spacing.sm,
   },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: Spacing.xl,
   },
-  activeBadge: {
-    backgroundColor: Colors.success + '20',
-  },
-  inactiveBadge: {
-    backgroundColor: Colors.muted + '40',
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: 'bold',
+  loadingText: {
+    color: Colors.muted,
+    marginTop: Spacing.sm,
   },
   actionButtons: {
     flexDirection: 'row',

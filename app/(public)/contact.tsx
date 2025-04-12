@@ -10,8 +10,8 @@ import {
   Platform
 } from 'react-native';
 import { Container, Text, Button, Card } from '../components/UI';
+import { SafeIcon } from '../components/UI/SafeIcon';
 import { Colors, Spacing, Layout } from '../constants';
-import { Ionicons } from '@expo/vector-icons';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -157,7 +157,7 @@ const ContactPage = () => {
             <View style={styles.infoCards}>
               <Card style={styles.infoCard}>
                 <View style={styles.infoIconContainer}>
-                  <Ionicons name="mail" size={32} color={Colors.white} />
+                  <SafeIcon name="Mail" size={32} color={Colors.white} />
                 </View>
                 <Text variant="h5" weight="semiBold" style={styles.infoCardTitle}>
                   Email Us
@@ -168,7 +168,7 @@ const ContactPage = () => {
               
               <Card style={styles.infoCard}>
                 <View style={styles.infoIconContainer}>
-                  <Ionicons name="call" size={32} color={Colors.white} />
+                  <SafeIcon name="Phone" size={32} color={Colors.white} />
                 </View>
                 <Text variant="h5" weight="semiBold" style={styles.infoCardTitle}>
                   Call Us
@@ -179,7 +179,7 @@ const ContactPage = () => {
               
               <Card style={styles.infoCard}>
                 <View style={styles.infoIconContainer}>
-                  <Ionicons name="location" size={32} color={Colors.white} />
+                  <SafeIcon name="MapPin" size={32} color={Colors.white} />
                 </View>
                 <Text variant="h5" weight="semiBold" style={styles.infoCardTitle}>
                   Office Address
@@ -195,7 +195,7 @@ const ContactPage = () => {
         <Container style={styles.hoursContainer}>
           <Card style={styles.hoursCard}>
             <View style={styles.hoursIconContainer}>
-              <Ionicons name="time" size={32} color={Colors.primary} />
+              <SafeIcon name="Clock" size={32} color={Colors.primary} />
             </View>
             <Text variant="h4" weight="semiBold" style={styles.hoursTitle}>
               Office Hours

@@ -1,9 +1,9 @@
 import React from 'react';
 import { StyleSheet, View, ScrollView, Image, ViewStyle } from 'react-native';
 import { Container, Text, Button, Card } from '../components/UI';
+import { SafeIcon } from '../components/UI/SafeIcon';
 import { Colors, Spacing, Layout } from '../constants';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 
 const ServicesPage = () => {
   const router = useRouter();
@@ -13,7 +13,7 @@ const ServicesPage = () => {
       id: 1,
       title: 'Assignment Help',
       description: 'Get expert assistance with all types of academic assignments. Our qualified experts will help you complete your assignments with proper research, formatting, and citations.',
-      icon: 'document-text',
+      icon: 'FileText',
       price: '₦5,000',
       features: [
         'Detailed analysis and research',
@@ -27,7 +27,7 @@ const ServicesPage = () => {
       id: 2,
       title: 'Essay Writing',
       description: 'Our professional essay writing service provides well-structured, thoroughly researched essays for all academic levels. We ensure original content that meets your requirements.',
-      icon: 'pencil',
+      icon: 'Edit',
       price: '₦7,500',
       features: [
         'Custom written essays',
@@ -41,7 +41,7 @@ const ServicesPage = () => {
       id: 3,
       title: 'Research Papers',
       description: 'Get assistance with comprehensive research papers including methodology, data analysis, and findings. We ensure proper academic standards are followed.',
-      icon: 'newspaper',
+      icon: 'Search',
       price: '₦10,000',
       features: [
         'Thorough literature review',
@@ -55,7 +55,7 @@ const ServicesPage = () => {
       id: 4,
       title: 'Thesis & Dissertations',
       description: 'Comprehensive support for your graduate-level research projects. From proposal to final submission, our experts will guide you through the process.',
-      icon: 'school',
+      icon: 'BookOpen',
       price: '₦15,000+',
       features: [
         'Proposal development',
@@ -69,7 +69,7 @@ const ServicesPage = () => {
       id: 5,
       title: 'Programming Assignments',
       description: 'Get help with coding assignments in various programming languages. Our tech experts will help you with implementation and documentation.',
-      icon: 'code-slash',
+      icon: 'Code',
       price: '₦8,000',
       features: [
         'Multiple programming languages',
@@ -83,7 +83,7 @@ const ServicesPage = () => {
       id: 6,
       title: 'Online Exams',
       description: 'Preparation and support for online examinations. Get study materials, practice tests, and expert guidance to excel in your exams.',
-      icon: 'clipboard',
+      icon: 'FileText',
       price: '₦6,000',
       features: [
         'Study guides and materials',
@@ -116,7 +116,7 @@ const ServicesPage = () => {
             <Card key={service.id} style={styles.serviceCard}>
               <View style={styles.serviceHeader}>
                 <View style={styles.serviceIconContainer}>
-                  <Ionicons 
+                  <SafeIcon 
                     name={service.icon as any} 
                     size={28} 
                     color={Colors.white}
@@ -137,7 +137,7 @@ const ServicesPage = () => {
                 </Text>
                 {service.features.map((feature, index) => (
                   <View key={index} style={styles.featureItem}>
-                    <Ionicons name="checkmark-circle" size={18} color={Colors.success} />
+                    <SafeIcon name="Check" size={18} color={Colors.success} />
                     <Text style={styles.featureText}>{feature}</Text>
                   </View>
                 ))}
@@ -179,32 +179,32 @@ const ServicesPage = () => {
             
             <View style={styles.comparisonRow}>
               <Text style={styles.comparisonFeature}>Expert Writers</Text>
-              <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
-              <Ionicons name="close-circle" size={24} color={Colors.danger} />
+              <SafeIcon name="Check" size={24} color={Colors.success} />
+              <SafeIcon name="X" size={24} color={Colors.danger} />
             </View>
             
             <View style={styles.comparisonRow}>
               <Text style={styles.comparisonFeature}>Plagiarism-Free</Text>
-              <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
-              <Ionicons name="help-circle" size={24} color={Colors.warning} />
+              <SafeIcon name="Check" size={24} color={Colors.success} />
+              <SafeIcon name="AlertCircle" size={24} color={Colors.warning} />
             </View>
             
             <View style={styles.comparisonRow}>
               <Text style={styles.comparisonFeature}>Free Revisions</Text>
-              <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
-              <Ionicons name="close-circle" size={24} color={Colors.danger} />
+              <SafeIcon name="Check" size={24} color={Colors.success} />
+              <SafeIcon name="X" size={24} color={Colors.danger} />
             </View>
             
             <View style={styles.comparisonRow}>
               <Text style={styles.comparisonFeature}>On-Time Delivery</Text>
-              <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
-              <Ionicons name="help-circle" size={24} color={Colors.warning} />
+              <SafeIcon name="Check" size={24} color={Colors.success} />
+              <SafeIcon name="AlertCircle" size={24} color={Colors.warning} />
             </View>
             
             <View style={styles.comparisonRow}>
               <Text style={styles.comparisonFeature}>Customer Support</Text>
-              <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
-              <Ionicons name="close-circle" size={24} color={Colors.danger} />
+              <SafeIcon name="Check" size={24} color={Colors.success} />
+              <SafeIcon name="X" size={24} color={Colors.danger} />
             </View>
           </Card>
         </Container>

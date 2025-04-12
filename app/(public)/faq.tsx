@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 import { Container, Text, Card } from '../components/UI';
+import { SafeIcon } from '../components/UI/SafeIcon';
 import { Colors, Spacing } from '../constants';
-import { Ionicons } from '@expo/vector-icons';
 
 interface FAQItem {
   id: number;
@@ -146,8 +146,8 @@ const FAQPage = () => {
                     <Text weight="semiBold" style={styles.question}>
                       {item.question}
                     </Text>
-                    <Ionicons 
-                      name={expandedItems[item.id] ? 'chevron-up' : 'chevron-down'} 
+                    <SafeIcon 
+                      name={expandedItems[item.id] ? 'ChevronUp' : 'ChevronDown'} 
                       size={24} 
                       color={Colors.primary}
                     />
@@ -177,15 +177,15 @@ const FAQPage = () => {
             </Text>
             <View style={styles.contactInfo}>
               <View style={styles.contactItem}>
-                <Ionicons name="mail" size={24} color={Colors.primary} />
+                <SafeIcon name="Mail" size={24} color={Colors.primary} />
                 <Text style={styles.contactDetail}>support@academiclessons.com</Text>
               </View>
               <View style={styles.contactItem}>
-                <Ionicons name="call" size={24} color={Colors.primary} />
+                <SafeIcon name="Phone" size={24} color={Colors.primary} />
                 <Text style={styles.contactDetail}>+234 800 123 4567</Text>
               </View>
               <View style={styles.contactItem}>
-                <Ionicons name="time" size={24} color={Colors.primary} />
+                <SafeIcon name="Clock" size={24} color={Colors.primary} />
                 <Text style={styles.contactDetail}>Support Hours: 9am - 9pm (Mon-Fri)</Text>
               </View>
             </View>
