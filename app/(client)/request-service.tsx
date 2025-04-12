@@ -10,7 +10,7 @@ import {
   Platform,
   ActivityIndicator
 } from 'react-native';
-import { Container, Text, Button, Card } from '../components/UI';
+import { Container, Text, Button, Card, DatePicker } from '../components/UI';
 import { SafeIcon } from '../components/UI/SafeIcon';
 import { Colors, Spacing, Layout } from '../constants';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -51,7 +51,7 @@ const RequestServicePage = () => {
     description: '',
     serviceId: '',
     academicLevel: 0,
-    deadline: '',
+    deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Default to 1 week from now
     budget: '',
     additionalNotes: '',
   });
@@ -97,7 +97,7 @@ const RequestServicePage = () => {
     }
   };
 
-  const handleChange = (field: string, value: string | number) => {
+  const handleChange = (field: string, value: string | number | Date) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -203,8 +203,9 @@ const RequestServicePage = () => {
       isValid = false;
     }
 
-    if (!formData.deadline.trim()) {
-      newErrors.deadline = 'Deadline is required';
+    // Validate the deadline (must be future date)
+    if (!(formData.deadline instanceof Date) || formData.deadline < new Date()) {
+      newErrors.deadline = 'Please select a future date for the deadline';
       isValid = false;
     }
 
@@ -235,10 +236,7 @@ const RequestServicePage = () => {
     setIsSubmitting(true);
 
     try {
-      // Parse deadline string to a Date object
-      const deadlineDate = new Date(formData.deadline);
-      
-      // Create service request in Firestore
+      // Use the date object directly for deadline
       const serviceRequest = await createServiceRequest({
         clientId: user.id,
         serviceId: formData.serviceId,
@@ -246,7 +244,7 @@ const RequestServicePage = () => {
         requirements: formData.description,
         academicLevel: getAcademicLevelName(formData.academicLevel),
         deadline: {
-          seconds: Math.floor(deadlineDate.getTime() / 1000),
+          seconds: Math.floor(formData.deadline.getTime() / 1000),
           nanoseconds: 0
         },
         additionalInfo: formData.additionalNotes,
@@ -282,7 +280,7 @@ const RequestServicePage = () => {
       setSubmissionSuccess(true);
       
       // Auto-redirect after 2 seconds
-    setTimeout(() => {
+      setTimeout(() => {
         router.replace('/(client)/dashboard');
       }, 2000);
       
@@ -484,15 +482,13 @@ const RequestServicePage = () => {
 
               <View style={styles.formField}>
                 <Text style={styles.label}>Deadline *</Text>
-                <TextInput
-                  style={[styles.input, errors.deadline ? styles.inputError : null]}
-                    placeholder="E.g., 2023-07-15"
-                    placeholderTextColor={Colors.muted + '80'}
-                  value={formData.deadline}
-                  onChangeText={(value) => handleChange('deadline', value)}
+                <DatePicker
+                  date={formData.deadline}
+                  onDateChange={(date) => handleChange('deadline', date)}
+                  errorMessage={errors.deadline}
+                  minimumDate={new Date()} // Prevent selecting past dates
+                  placeholder="Select a deadline"
                 />
-                  <Text style={styles.inputHelper}>Format: YYYY-MM-DD</Text>
-                {errors.deadline && <Text style={styles.errorText}>{errors.deadline}</Text>}
               </View>
 
               <View style={styles.formField}>
