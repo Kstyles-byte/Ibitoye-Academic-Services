@@ -311,7 +311,7 @@ module.exports = async (req, res) => {
     subject,
     text,
     html,
-    from = 'Academic Lessons <no-reply@resend.dev>',
+    from = 'Academic Lessons <onboarding@resend.dev>',
     clientName, 
     requestTitle, 
     requestId, 

@@ -21,7 +21,7 @@ export interface EmailOptions {
  * @returns A Promise that resolves when the email is sent
  */
 export const sendEmail = async (options: EmailOptions) => {
-  const { to, subject, text, html, from = 'Academic Lessons <no-reply@yourcompany.com>' } = options;
+  const { to, subject, text, html, from = 'Academic Lessons <onboarding@resend.dev>' } = options;
 
   try {
     // Log information for debugging
