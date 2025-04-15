@@ -1,17 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Linking } from 'react-native';
-import { Container, Text, Card, Button } from '../components/UI';
+import { Container, Text, Card, Button, TopNav } from '../components/UI';
 import { SafeIcon } from '../components/UI/SafeIcon';
 import { Colors, Spacing, Layout } from '../constants';
 import { useRouter } from 'expo-router';
 import { getAllServices } from '../lib/db/repositories/serviceRepository';
 import { Service } from '../lib/db/types';
+import { signOut } from '../lib/firebase/auth';
+import { useAuth } from '../lib/firebase/hooks';
 
 const ClientDashboard = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const [services, setServices] = useState<Service[]>([]);
   const [loadingServices, setLoadingServices] = useState(false);
   
+  // Handle user logout
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      router.replace('/(auth)/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      alert('Failed to sign out. Please try again.');
+    }
+  };
+
   // Placeholder data for active services
   const activeServices = [
     {
@@ -153,223 +167,231 @@ const ClientDashboard = () => {
   };
 
   return (
-    <ScrollView style={styles.scrollView}>
-      <Container>
-        <View style={styles.header}>
-          <Text variant="h2" weight="bold" style={styles.title}>
-            Client Dashboard
-          </Text>
-          <Text style={styles.subtitle}>
-            Welcome back! Here's an overview of your services
-          </Text>
-        </View>
-
-        {/* Quick Actions Section */}
-        <View style={styles.quickActionsContainer}>
-          <Text variant="h4" weight="semiBold" style={styles.sectionTitle}>
-            Quick Actions
-          </Text>
-          <View style={styles.quickActions}>
-            <TouchableOpacity 
-              style={styles.quickAction}
-              onPress={navigateToNewRequest}
-            >
-              <View style={[styles.quickActionIcon, { backgroundColor: Colors.primary }]}>
-                <SafeIcon name="Plus" size={24} color={Colors.white} />
-              </View>
-              <Text style={styles.quickActionText}>New Request</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.quickAction}
-              onPress={navigateToUpload}
-            >
-              <View style={[styles.quickActionIcon, { backgroundColor: Colors.warning }]}>
-                <SafeIcon name="Upload" size={24} color={Colors.white} />
-              </View>
-              <Text style={styles.quickActionText}>Upload</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.quickAction}
-              onPress={openSupportChat}
-            >
-              <View style={[styles.quickActionIcon, { backgroundColor: Colors.secondary }]}>
-                <SafeIcon name="HelpCircle" size={24} color={Colors.white} />
-              </View>
-              <Text style={styles.quickActionText}>Support</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Available Services Section */}
-        <View style={styles.servicesContainer}>
-          <View style={styles.sectionHeader}>
-            <Text variant="h4" weight="semiBold" style={styles.sectionTitle}>
-              Available Services
+    <>
+      <TopNav rightComponent={
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <SafeIcon name="LogOut" size={20} color={Colors.danger} />
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+      } />
+      <ScrollView style={styles.scrollView}>
+        <Container>
+          <View style={styles.header}>
+            <Text variant="h2" weight="bold" style={styles.title}>
+              Client Dashboard
+            </Text>
+            <Text style={styles.subtitle}>
+              Welcome back! Here's an overview of your services
             </Text>
           </View>
-          
-          {loadingServices ? (
-            <Card style={styles.loadingCard}>
-              <SafeIcon name="Loader" size={24} color={Colors.muted} />
-              <Text style={styles.loadingText}>Loading services...</Text>
-            </Card>
-          ) : services.length > 0 ? (
-            services.map(service => (
-              <Card key={service.id} style={styles.availableServiceCard}>
-                <View style={styles.availableServiceHeader}>
-                  <Text variant="h5" weight="semiBold" style={styles.availableServiceTitle}>
-                    {service.name}
-                  </Text>
-                  <View style={styles.priceBadge}>
-                    <Text style={styles.priceText}>₦{service.basePrice.toLocaleString()}</Text>
-                  </View>
+
+          {/* Quick Actions Section */}
+          <View style={styles.quickActionsContainer}>
+            <Text variant="h4" weight="semiBold" style={styles.sectionTitle}>
+              Quick Actions
+            </Text>
+            <View style={styles.quickActions}>
+              <TouchableOpacity 
+                style={styles.quickAction}
+                onPress={navigateToNewRequest}
+              >
+                <View style={[styles.quickActionIcon, { backgroundColor: Colors.primary }]}>
+                  <SafeIcon name="Plus" size={24} color={Colors.white} />
                 </View>
-                
-                <Text style={styles.availableServiceDescription}>
-                  {service.description}
+                <Text style={styles.quickActionText}>New Request</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.quickAction}
+                onPress={navigateToUpload}
+              >
+                <View style={[styles.quickActionIcon, { backgroundColor: Colors.warning }]}>
+                  <SafeIcon name="Upload" size={24} color={Colors.white} />
+                </View>
+                <Text style={styles.quickActionText}>Upload</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.quickAction}
+                onPress={openSupportChat}
+              >
+                <View style={[styles.quickActionIcon, { backgroundColor: Colors.secondary }]}>
+                  <SafeIcon name="HelpCircle" size={24} color={Colors.white} />
+                </View>
+                <Text style={styles.quickActionText}>Support</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Available Services Section */}
+          <View style={styles.servicesContainer}>
+            <View style={styles.sectionHeader}>
+              <Text variant="h4" weight="semiBold" style={styles.sectionTitle}>
+                Available Services
+              </Text>
+            </View>
+            
+            {loadingServices ? (
+              <Card style={styles.loadingCard}>
+                <SafeIcon name="Loader" size={24} color={Colors.muted} />
+                <Text style={styles.loadingText}>Loading services...</Text>
+              </Card>
+            ) : services.length > 0 ? (
+              services.map(service => (
+                <Card key={service.id} style={styles.availableServiceCard}>
+                  <View style={styles.availableServiceHeader}>
+                    <Text variant="h5" weight="semiBold" style={styles.availableServiceTitle}>
+                      {service.name}
+                    </Text>
+                    <View style={styles.priceBadge}>
+                      <Text style={styles.priceText}>₦{service.basePrice.toLocaleString()}</Text>
+                    </View>
+                  </View>
+                  
+                  <Text style={styles.availableServiceDescription}>
+                    {service.description}
+                  </Text>
+                  
+                  <Text style={styles.categoryText}>
+                    <Text style={styles.categoryLabel}>Category: </Text>
+                    {service.category}
+                  </Text>
+                  
+                  <Button
+                    title="Request This Service"
+                    variant="outline"
+                    size="small"
+                    onPress={() => navigateToNewRequestWithService(service.id)}
+                    style={styles.requestServiceButton}
+                  />
+                </Card>
+              ))
+            ) : (
+              <Card style={styles.emptyCard}>
+                <SafeIcon name="Package" size={48} color={Colors.muted} />
+                <Text style={styles.emptyText}>No services available</Text>
+                <Text style={styles.emptySubtext}>
+                  Check back later for new services
                 </Text>
-                
-                <Text style={styles.categoryText}>
-                  <Text style={styles.categoryLabel}>Category: </Text>
-                  {service.category}
+              </Card>
+            )}
+          </View>
+
+          {/* Active Services Section */}
+          <View style={styles.servicesContainer}>
+            <View style={styles.sectionHeader}>
+              <Text variant="h4" weight="semiBold" style={styles.sectionTitle}>
+                Active Services
+              </Text>
+              <TouchableOpacity onPress={() => router.push('/(client)/services')}>
+                <Text style={styles.viewAllLink}>View All</Text>
+              </TouchableOpacity>
+            </View>
+
+            {activeServices.length > 0 ? (
+              activeServices.map(service => (
+                <Card key={service.id} style={styles.serviceCard}>
+                  <View style={styles.serviceHeader}>
+                    <Text variant="h5" weight="semiBold" style={styles.serviceTitle}>
+                      {service.title}
+                    </Text>
+                    {renderStatusBadge(service.status)}
+                  </View>
+                  
+                  <View style={styles.serviceDetails}>
+                    <View style={styles.serviceDetail}>
+                      <SafeIcon name="Calendar" size={16} color={Colors.muted} />
+                      <Text style={styles.serviceDetailText}>Due: {service.dueDate}</Text>
+                    </View>
+                    <View style={styles.serviceDetail}>
+                      <SafeIcon name="User" size={16} color={Colors.muted} />
+                      <Text style={styles.serviceDetailText}>Expert: {service.expert}</Text>
+                    </View>
+                  </View>
+                  
+                  <View style={styles.serviceProgressContainer}>
+                    <Text style={styles.serviceProgressText}>Progress: {service.progress}%</Text>
+                    {renderProgressBar(service.progress)}
+                  </View>
+                  
+                  <View style={styles.serviceActions}>
+                    <Button 
+                      title="View Details" 
+                      variant="outline"
+                      size="small"
+                      onPress={() => router.push({
+                        pathname: '/(client)/service-detail',
+                        params: { id: service.id }
+                      })}
+                      style={styles.serviceButton}
+                    />
+                    <Button
+                      title="Upload Materials"
+                      variant="outline"
+                      size="small"
+                      onPress={navigateToUpload}
+                      style={styles.serviceButton}
+                    />
+                  </View>
+                </Card>
+              ))
+            ) : (
+              <Card style={styles.emptyCard}>
+                <SafeIcon name="File" size={48} color={Colors.muted} />
+                <Text style={styles.emptyText}>No active services</Text>
+                <Text style={styles.emptySubtext}>
+                  Get started by requesting a new academic service
                 </Text>
-                
-                <Button
-                  title="Request This Service"
-                  variant="outline"
-                  size="small"
-                  onPress={() => navigateToNewRequestWithService(service.id)}
-                  style={styles.requestServiceButton}
+                <Button 
+                  title="Request Service" 
+                  onPress={navigateToNewRequest}
+                  style={styles.emptyButton}
                 />
               </Card>
-            ))
-          ) : (
-            <Card style={styles.emptyCard}>
-              <SafeIcon name="Package" size={48} color={Colors.muted} />
-              <Text style={styles.emptyText}>No services available</Text>
-              <Text style={styles.emptySubtext}>
-                Check back later for new services
-              </Text>
-            </Card>
-          )}
-        </View>
-
-        {/* Active Services Section */}
-        <View style={styles.servicesContainer}>
-          <View style={styles.sectionHeader}>
-            <Text variant="h4" weight="semiBold" style={styles.sectionTitle}>
-              Active Services
-            </Text>
-            <TouchableOpacity onPress={() => router.push('/(client)/services')}>
-              <Text style={styles.viewAllLink}>View All</Text>
-            </TouchableOpacity>
+            )}
           </View>
 
-          {activeServices.length > 0 ? (
-            activeServices.map(service => (
-              <Card key={service.id} style={styles.serviceCard}>
-                <View style={styles.serviceHeader}>
-                  <Text variant="h5" weight="semiBold" style={styles.serviceTitle}>
-                    {service.title}
-                  </Text>
-                  {renderStatusBadge(service.status)}
-                </View>
-                
-                <View style={styles.serviceDetails}>
-                  <View style={styles.serviceDetail}>
-                    <SafeIcon name="Calendar" size={16} color={Colors.muted} />
-                    <Text style={styles.serviceDetailText}>Due: {service.dueDate}</Text>
+          {/* Recent Activity Section */}
+          <View style={styles.activityContainer}>
+            <Text variant="h4" weight="semiBold" style={styles.sectionTitle}>
+              Recent Activity
+            </Text>
+            
+            {recentActivity.length > 0 ? (
+              <Card style={styles.activityCard}>
+                {recentActivity.map((activity, index) => (
+                  <View key={activity.id}>
+                    <View style={styles.activityItem}>
+                      <View 
+                        style={[
+                          styles.activityIconContainer, 
+                          { backgroundColor: activity.color }
+                        ]}
+                      >
+                        <SafeIcon name={activity.icon} size={16} color={Colors.white} />
+                      </View>
+                      <View style={styles.activityContent}>
+                        <Text style={styles.activityText}>{activity.content}</Text>
+                        <Text style={styles.activityTime}>{activity.time}</Text>
+                      </View>
+                    </View>
+                    {index < recentActivity.length - 1 && <View style={styles.activityDivider} />}
                   </View>
-                  <View style={styles.serviceDetail}>
-                    <SafeIcon name="User" size={16} color={Colors.muted} />
-                    <Text style={styles.serviceDetailText}>Expert: {service.expert}</Text>
-                  </View>
-                </View>
-                
-                <View style={styles.serviceProgressContainer}>
-                  <Text style={styles.serviceProgressText}>Progress: {service.progress}%</Text>
-                  {renderProgressBar(service.progress)}
-                </View>
-                
-                <View style={styles.serviceActions}>
-                  <Button 
-                    title="View Details" 
-                    variant="outline"
-                    size="small"
-                    onPress={() => router.push({
-                      pathname: '/(client)/service-detail',
-                      params: { id: service.id }
-                    })}
-                    style={styles.serviceButton}
-                  />
-                  <Button
-                    title="Upload Materials"
-                    variant="outline"
-                    size="small"
-                    onPress={navigateToUpload}
-                    style={styles.serviceButton}
-                  />
-                </View>
+                ))}
               </Card>
-            ))
-          ) : (
-            <Card style={styles.emptyCard}>
-              <SafeIcon name="File" size={48} color={Colors.muted} />
-              <Text style={styles.emptyText}>No active services</Text>
-              <Text style={styles.emptySubtext}>
-                Get started by requesting a new academic service
-              </Text>
-              <Button 
-                title="Request Service" 
-                onPress={navigateToNewRequest}
-                style={styles.emptyButton}
-              />
-            </Card>
-          )}
-        </View>
-
-        {/* Recent Activity Section */}
-        <View style={styles.activityContainer}>
-          <Text variant="h4" weight="semiBold" style={styles.sectionTitle}>
-            Recent Activity
-          </Text>
-          
-          {recentActivity.length > 0 ? (
-            <Card style={styles.activityCard}>
-              {recentActivity.map((activity, index) => (
-                <View key={activity.id}>
-                  <View style={styles.activityItem}>
-                    <View 
-                      style={[
-                        styles.activityIconContainer, 
-                        { backgroundColor: activity.color }
-                      ]}
-                    >
-                      <SafeIcon name={activity.icon} size={16} color={Colors.white} />
-                    </View>
-                    <View style={styles.activityContent}>
-                      <Text style={styles.activityText}>{activity.content}</Text>
-                      <Text style={styles.activityTime}>{activity.time}</Text>
-                    </View>
-                  </View>
-                  {index < recentActivity.length - 1 && <View style={styles.activityDivider} />}
-                </View>
-              ))}
-            </Card>
-          ) : (
-            <Card style={styles.emptyCard}>
-              <SafeIcon name="Activity" size={48} color={Colors.muted} />
-              <Text style={styles.emptyText}>No recent activity</Text>
-              <Text style={styles.emptySubtext}>
-                Your activity history will appear here
-              </Text>
-            </Card>
-          )}
-        </View>
-      </Container>
-    </ScrollView>
+            ) : (
+              <Card style={styles.emptyCard}>
+                <SafeIcon name="Activity" size={48} color={Colors.muted} />
+                <Text style={styles.emptyText}>No recent activity</Text>
+                <Text style={styles.emptySubtext}>
+                  Your activity history will appear here
+                </Text>
+              </Card>
+            )}
+          </View>
+        </Container>
+      </ScrollView>
+    </>
   );
 };
 
@@ -588,6 +610,18 @@ const styles = StyleSheet.create({
   activityDivider: {
     height: 1,
     backgroundColor: '#eee',
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: 20,
+  },
+  logoutText: {
+    color: Colors.danger,
+    marginLeft: 4,
+    fontSize: 14,
   },
 });
 

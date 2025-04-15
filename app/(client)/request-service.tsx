@@ -21,6 +21,7 @@ import { useAuth } from '../lib/firebase/hooks';
 import * as DocumentPicker from 'expo-document-picker';
 import { saveFileLocally, initializeStorage } from '../lib/cloudinary';
 import { UPLOAD_FOLDERS, generateUniqueFilename } from '../lib/cloudinary/config';
+import { sendEmailNotification } from '../lib/email/apiClient';
 
 // Add this at the top level of the file, outside of your component
 // This lets TypeScript know about our global URL mapping
@@ -54,6 +55,7 @@ const RequestServicePage = () => {
     deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Default to 1 week from now
     budget: '',
     additionalNotes: '',
+    whatsappNumber: '',
   });
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
@@ -236,6 +238,12 @@ const RequestServicePage = () => {
     setIsSubmitting(true);
 
     try {
+      // Prepare the additionalInfo with WhatsApp number if provided
+      let additionalInfoText = formData.additionalNotes || '';
+      if (formData.whatsappNumber) {
+        additionalInfoText = `WhatsApp: ${formData.whatsappNumber}\n\n${additionalInfoText}`;
+      }
+
       // Use the date object directly for deadline
       const serviceRequest = await createServiceRequest({
         clientId: user.id,
@@ -247,7 +255,8 @@ const RequestServicePage = () => {
           seconds: Math.floor(formData.deadline.getTime() / 1000),
           nanoseconds: 0
         },
-        additionalInfo: formData.additionalNotes,
+        additionalInfo: additionalInfoText,
+        budget: parseFloat(formData.budget),
         status: RequestStatus.PENDING
       });
 
@@ -274,6 +283,21 @@ const RequestServicePage = () => {
           console.error('Error saving attachments:', error);
           // Continue with success flow even if attachments fail
         }
+      }
+      
+      // Send email notifications
+      try {
+        await sendEmailNotification({
+          type: 'request-submitted',
+          clientEmail: user.email,
+          clientName: user.displayName || user.email,
+          requestTitle: formData.title,
+          // Using a configuration or environment variable for admin email
+          adminEmail: process.env.ADMIN_EMAIL || 'admin@academiclessons.com'
+        });
+      } catch (error) {
+        console.error('Error sending email notifications:', error);
+        // Continue with success flow even if email notifications fail
       }
 
       // Show success state
@@ -373,6 +397,18 @@ const RequestServicePage = () => {
                   onChangeText={(value) => handleChange('title', value)}
                 />
                 {errors.title && <Text style={styles.errorText}>{errors.title}</Text>}
+              </View>
+
+              <View style={styles.formField}>
+                <Text style={styles.label}>WhatsApp Number</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Your WhatsApp number for communication"
+                  placeholderTextColor={Colors.muted + '80'}
+                  value={formData.whatsappNumber}
+                  onChangeText={(value) => handleChange('whatsappNumber', value)}
+                  keyboardType="phone-pad"
+                />
               </View>
 
               <View style={styles.formField}>

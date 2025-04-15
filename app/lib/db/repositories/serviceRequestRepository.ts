@@ -91,12 +91,29 @@ export const addAttachment = async (
 
 // Get attachments by service request ID
 export const getAttachmentsByServiceRequestId = async (serviceRequestId: string): Promise<Attachment[]> => {
-  return await getDocuments<Attachment>(
-    ATTACHMENTS_COLLECTION,
-    [{ field: 'serviceRequestId', operator: '==', value: serviceRequestId }],
-    'createdAt',
-    'desc'
-  );
+  console.log(`Fetching attachments for service request: ${serviceRequestId}`);
+  try {
+    const attachments = await getDocuments<Attachment>(
+      ATTACHMENTS_COLLECTION,
+      [{ field: 'serviceRequestId', operator: '==', value: serviceRequestId }],
+      'createdAt',
+      'desc'
+    );
+    
+    console.log(`Found ${attachments.length} attachments for service request: ${serviceRequestId}`);
+    
+    // Ensure all attachments have valid URLs
+    return attachments.filter(attachment => {
+      if (!attachment.fileUrl) {
+        console.warn(`Attachment ${attachment.id} has no fileUrl`);
+        return false;
+      }
+      return true;
+    });
+  } catch (error) {
+    console.error(`Error fetching attachments for service request ${serviceRequestId}:`, error);
+    return [];
+  }
 };
 
 // Delete an attachment

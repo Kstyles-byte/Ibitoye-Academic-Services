@@ -42,6 +42,7 @@ export interface Timestamp {
 export interface User {
   id: string;
   name?: string;
+  displayName?: string;
   email: string;
   emailVerified?: Timestamp;
   password?: string;
@@ -83,6 +84,7 @@ export interface Client {
   id: string;
   userId: string;
   phone?: string;
+  whatsappNumber?: string;
   academicLevel?: string;
   institution?: string;
   createdAt: Timestamp;
@@ -131,6 +133,7 @@ export interface ServiceRequest {
   deadline: Timestamp;
   requirements: string;
   additionalInfo?: string;
+  budget?: number;
   status: RequestStatus;
   createdAt: Timestamp;
   updatedAt: Timestamp;

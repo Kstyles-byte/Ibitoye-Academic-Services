@@ -15,7 +15,8 @@ import {
   addDoc,
   CollectionReference,
   DocumentData,
-  Query
+  Query,
+  onSnapshot
 } from 'firebase/firestore';
 import { db } from '../../config/firebase.config';
 import * as Types from './types';
@@ -170,6 +171,50 @@ export const updateDocument = async <T>(
     await updateDoc(docRef, dataWithTimestamp);
   } catch (error) {
     console.error(`Error updating document in ${collectionName}:`, error);
+    throw error;
+  }
+};
+
+// Subscribe to real-time updates for a collection
+export const subscribeToCollection = <T>(
+  collectionName: string,
+  callback: (data: T[]) => void,
+  conditions: { field: string; operator: any; value: any }[] = [],
+  sortField?: string,
+  sortDirection: 'asc' | 'desc' = 'desc',
+  limitCount?: number
+) => {
+  try {
+    const collectionRef = collection(db, collectionName);
+    let q: Query<DocumentData> = collectionRef;
+    
+    // Apply where conditions
+    if (conditions.length > 0) {
+      q = createQuery(collectionRef, ...conditions.map(c => where(c.field, c.operator, c.value)));
+    }
+    
+    // Apply sorting
+    if (sortField) {
+      q = createQuery(q, orderBy(sortField, sortDirection));
+    }
+    
+    // Apply limit
+    if (limitCount) {
+      q = createQuery(q, limit(limitCount));
+    }
+    
+    // Set up the real-time listener
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as T));
+      callback(data);
+    }, (error) => {
+      console.error(`Error subscribing to ${collectionName}:`, error);
+    });
+    
+    // Return the unsubscribe function to be called when the component unmounts
+    return unsubscribe;
+  } catch (error) {
+    console.error(`Error setting up subscription to ${collectionName}:`, error);
     throw error;
   }
 };

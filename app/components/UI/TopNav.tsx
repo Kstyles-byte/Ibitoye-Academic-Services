@@ -9,9 +9,10 @@ import { Role } from '../../lib/db/types';
 
 interface TopNavProps {
   title?: string;
+  rightComponent?: React.ReactNode;
 }
 
-export const TopNav: React.FC<TopNavProps> = ({ title }) => {
+export const TopNav: React.FC<TopNavProps> = ({ title, rightComponent }) => {
   const router = useRouter();
   const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -98,16 +99,26 @@ export const TopNav: React.FC<TopNavProps> = ({ title }) => {
         
         {isSmallScreen ? (
           // Hamburger menu for small screens
-          <TouchableOpacity 
-            style={styles.menuButton} 
-            onPress={() => setMenuOpen(true)}
-          >
-            <SafeIcon name="Menu" size={24} color={Colors.dark} />
-          </TouchableOpacity>
+          <View style={styles.rightSection}>
+            {rightComponent}
+            <TouchableOpacity 
+              style={styles.menuButton} 
+              onPress={() => setMenuOpen(true)}
+            >
+              <SafeIcon name="Menu" size={24} color={Colors.dark} />
+            </TouchableOpacity>
+          </View>
         ) : (
           // Regular horizontal nav for larger screens
-          <View style={styles.navLinks}>
-            <NavLinks />
+          <View style={styles.navContainer}>
+            <View style={styles.navLinks}>
+              <NavLinks />
+            </View>
+            {rightComponent && (
+              <View style={styles.rightComponentContainer}>
+                {rightComponent}
+              </View>
+            )}
           </View>
         )}
       </View>
@@ -227,5 +238,16 @@ const styles = StyleSheet.create({
   },
   mobileNavLinks: {
     paddingVertical: Spacing.sm,
+  },
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  navContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  rightComponentContainer: {
+    marginLeft: Spacing.md,
   },
 }); 

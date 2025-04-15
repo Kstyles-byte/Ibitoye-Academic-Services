@@ -26,6 +26,7 @@ const ProfilePage = () => {
     lastName: 'Doe',
     email: 'john.doe@example.com',
     phone: '+234 801 234 5678',
+    whatsappNumber: '',
     university: 'University of Lagos',
     course: 'Computer Science',
     year: '3rd Year',
@@ -278,6 +279,17 @@ const ProfilePage = () => {
                   value={userData.phone}
                   keyboardType="phone-pad"
                   onChangeText={(value) => handleProfileChange('phone', value)}
+                />
+              </View>
+
+              <View style={styles.formField}>
+                <Text style={styles.label}>WhatsApp Number</Text>
+                <TextInput
+                  style={styles.input}
+                  value={userData.whatsappNumber}
+                  keyboardType="phone-pad"
+                  onChangeText={(value) => handleProfileChange('whatsappNumber', value)}
+                  placeholder="Enter your WhatsApp number"
                 />
               </View>
 

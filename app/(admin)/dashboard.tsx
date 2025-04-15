@@ -5,10 +5,21 @@ import { SafeIcon } from '../components/UI/SafeIcon';
 import { Colors, Spacing, Layout } from '../constants';
 import { useAuth } from '../lib/firebase/hooks';
 import { useRouter } from 'expo-router';
+import { signOut } from '../lib/firebase/auth';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
   const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      router.replace('/(auth)/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      alert('Failed to sign out. Please try again.');
+    }
+  };
 
   const AdminCard = ({ title, description, icon, onPress }: {
     title: string;
@@ -38,7 +49,12 @@ const AdminDashboard = () => {
 
   return (
     <>
-      <TopNav />
+      <TopNav rightComponent={
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <SafeIcon name="LogOut" size={20} color={Colors.danger} />
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+      } />
       <Container>
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
@@ -151,6 +167,18 @@ const styles = StyleSheet.create({
   },
   cardDescription: {
     color: Colors.muted,
+    fontSize: 14,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: 20,
+  },
+  logoutText: {
+    color: Colors.danger,
+    marginLeft: 4,
     fontSize: 14,
   },
 });
