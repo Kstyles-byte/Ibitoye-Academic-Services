@@ -1,9 +1,11 @@
 {
   "version": 2,
-  "buildCommand": "npm run build:web",
+  "framework": null,
+  "buildCommand": null,
   "outputDirectory": "dist",
-  "framework": "expo",
-  "regions": ["fra1"],
+  "public": true,
+  "cleanUrls": true,
+  "trailingSlash": false,
   "headers": [
     {
       "source": "/(.*)",
@@ -46,19 +48,10 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/email", "destination": "/api/email" },
     { "source": "/_expo/:path*", "destination": "/_expo/:path*" },
     { "source": "/assets/:path*", "destination": "/assets/:path*" },
     { "source": "/fonts/:path*", "destination": "/fonts/:path*" },
     { "source": "/static/:path*", "destination": "/static/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "env": {
-    "EMAIL_USER": "@email_user",
-    "EMAIL_PASS": "@email_pass",
-    "SMTP_HOST": "smtp.gmail.com",
-    "SMTP_PORT": "587",
-    "SMTP_SECURE": "false",
-    "ADMIN_EMAIL": "@admin_email"
-  }
+  ]
 } 

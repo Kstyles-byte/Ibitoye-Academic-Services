@@ -7,7 +7,6 @@ import { useRouter } from 'expo-router';
 import { getDocuments, updateDocument, getDocumentById, subscribeToCollection } from '../lib/db/firestore';
 import { ServiceRequest, RequestStatus, Client, User, Service, Attachment, Role } from '../lib/db/types';
 import { getAttachmentsByServiceRequestId } from '../lib/db/repositories/serviceRequestRepository';
-import { sendEmailNotification } from '../lib/email/apiClient';
 
 interface RequestWithDetails extends ServiceRequest {
   client?: {
@@ -352,37 +351,6 @@ const RequestMonitoring = () => {
   const handleUpdateRequestStatus = async (requestId: string, newStatus: RequestStatus) => {
     try {
       await updateDocument<ServiceRequest>('serviceRequests', requestId, { status: newStatus });
-      
-      // If the status is being set to APPROVED, send notification email to client
-      if (newStatus === RequestStatus.APPROVED && selectedRequest) {
-        try {
-          const clientUser = selectedRequest.client?.user;
-          if (clientUser && clientUser.email) {
-            console.log('Sending approval email to client:', {
-              email: clientUser.email,
-              name: getUserDisplayName(clientUser),
-              subject: selectedRequest.subject
-            });
-            
-            await sendEmailNotification({
-              type: 'request-approved',
-              clientEmail: clientUser.email,
-              clientName: getUserDisplayName(clientUser),
-              requestTitle: selectedRequest.subject
-            });
-            
-            console.log('Approval email notification sent successfully');
-          } else {
-            console.warn('Cannot send approval email: missing client email information', {
-              clientUser: clientUser ? 'exists' : 'missing',
-              email: clientUser?.email || 'missing'
-            });
-          }
-        } catch (error) {
-          console.error('Error sending approval email notification:', error);
-          // Continue with success flow even if email notification fails
-        }
-      }
       
       setSelectedRequest(null);
       Alert.alert('Success', 'Request status updated successfully');
@@ -1369,8 +1337,8 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
   },
   actionButton: {
-    marginLeft: Spacing.sm,
-    minWidth: 120,
+    marginLeft: Spacing.xs,
+    minWidth: 90,
   },
   modalOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -1454,7 +1422,7 @@ const styles = StyleSheet.create({
   actionButtonGroup: {
     flexDirection: 'row',
   },
-  actionButtonSecondary: {
+  actionButton: {
     marginLeft: Spacing.sm,
     minWidth: 120,
   },
@@ -1613,9 +1581,6 @@ const styles = StyleSheet.create({
   sectionIcon: {
     marginRight: Spacing.sm,
   },
-  clientChatButton: {
-    marginRight: Spacing.sm,
-  }
 });
 
 export default RequestMonitoring; 

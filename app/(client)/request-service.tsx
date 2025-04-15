@@ -21,7 +21,6 @@ import { useAuth } from '../lib/firebase/hooks';
 import * as DocumentPicker from 'expo-document-picker';
 import { saveFileLocally, initializeStorage } from '../lib/cloudinary';
 import { UPLOAD_FOLDERS, generateUniqueFilename } from '../lib/cloudinary/config';
-import { sendEmailNotification } from '../lib/email/apiClient';
 
 // Add this at the top level of the file, outside of your component
 // This lets TypeScript know about our global URL mapping
@@ -283,21 +282,6 @@ const RequestServicePage = () => {
           console.error('Error saving attachments:', error);
           // Continue with success flow even if attachments fail
         }
-      }
-      
-      // Send email notifications
-      try {
-        await sendEmailNotification({
-          type: 'request-submitted',
-          clientEmail: user.email,
-          clientName: user.displayName || user.email,
-          requestTitle: formData.title,
-          // Using a configuration or environment variable for admin email
-          adminEmail: process.env.ADMIN_EMAIL || 'admin@academiclessons.com'
-        });
-      } catch (error) {
-        console.error('Error sending email notifications:', error);
-        // Continue with success flow even if email notifications fail
       }
 
       // Show success state
