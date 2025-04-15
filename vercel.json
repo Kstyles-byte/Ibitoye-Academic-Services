@@ -1,11 +1,9 @@
 {
   "version": 2,
-  "framework": null,
-  "buildCommand": null,
+  "buildCommand": "npm run build:web",
   "outputDirectory": "dist",
-  "public": true,
-  "cleanUrls": true,
-  "trailingSlash": false,
+  "framework": "expo",
+  "regions": ["fra1"],
   "headers": [
     {
       "source": "/(.*)",
@@ -48,6 +46,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/api/email", "destination": "/api/email" },
     { "source": "/_expo/:path*", "destination": "/_expo/:path*" },
     { "source": "/assets/:path*", "destination": "/assets/:path*" },
     { "source": "/fonts/:path*", "destination": "/fonts/:path*" },

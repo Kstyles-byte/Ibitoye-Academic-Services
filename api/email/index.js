@@ -51,8 +51,12 @@ const EMAIL_TEMPLATES = {
   })
 };
 
-// Create a transporter object using the default SMTP transport
-const createTransporter = () => {
+/**
+ * Create a transporter object using the default SMTP transport
+ * This function creates a new transporter for each email to prevent connection issues
+ */
+const createTransporter = async () => {
+  // Configure transporter using environment variables
   const config = {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT) || 587,
@@ -63,12 +67,12 @@ const createTransporter = () => {
     }
   };
   
-  console.log('Creating email transporter with config:', {
+  console.log('Email configuration:', {
     host: config.host,
     port: config.port,
     secure: config.secure,
-    user: config.auth.user ? '(set)' : '(not set)',
-    pass: config.auth.pass ? '(set)' : '(not set)'
+    user: config.auth.user ? config.auth.user.substring(0, 3) + '***' : '(not set)',
+    pass: config.auth.pass ? '********' : '(not set)'
   });
   
   return nodemailer.createTransport(config);
@@ -80,7 +84,7 @@ const createTransporter = () => {
 const sendEmail = async (to, subject, html) => {
   try {
     console.log(`Attempting to send email to ${to} with subject: ${subject}`);
-    const transporter = createTransporter();
+    const transporter = await createTransporter();
     
     const result = await transporter.sendMail({
       from: `"Academic Lessons" <${process.env.EMAIL_USER}>`,
@@ -130,7 +134,18 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const body = req.body;
+    // Handle Vercel's body parsing
+    let body;
+    if (typeof req.body === 'string') {
+      try {
+        body = JSON.parse(req.body);
+      } catch (e) {
+        body = req.body;
+      }
+    } else {
+      body = req.body;
+    }
+    
     console.log('Email API request body:', body);
     
     // Validate required fields
