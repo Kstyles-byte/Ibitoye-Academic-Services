@@ -1,6 +1,7 @@
 import { 
-  getDocumentById, 
+  getDocumentById as getDoc, 
   getDocuments, 
+  createDocument,
   updateDocument, 
   deleteDocument 
 } from '../firestore';
@@ -11,30 +12,47 @@ const USERS_COLLECTION = 'users';
 const CLIENTS_COLLECTION = 'clients';
 const EXPERTS_COLLECTION = 'experts';
 
-// Get user by ID
+/**
+ * Get user by ID
+ */
 export const getUserById = async (id: string): Promise<User | null> => {
-  return await getDocumentById<User>(USERS_COLLECTION, id);
+  return await getDoc<User>(USERS_COLLECTION, id);
 };
 
-// Get user by email
-export const getUserByEmail = async (email: string): Promise<User | null> => {
-  const users = await getDocuments<User>(
+/**
+ * Get users by role
+ */
+export const getUsersByRole = async (role: Role): Promise<User[]> => {
+  return await getDocuments<User>(
     USERS_COLLECTION,
-    [{ field: 'email', operator: '==', value: email }],
+    [{ field: 'role', operator: '==', value: role }],
     'createdAt',
-    'desc',
-    1
+    'desc'
   );
-  
-  return users.length > 0 ? users[0] : null;
 };
 
-// Update user
-export const updateUser = async (id: string, data: Partial<User>): Promise<void> => {
+/**
+ * Create user
+ */
+export const createUser = async (
+  data: Omit<User, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<User> => {
+  return await createDocument<User>(USERS_COLLECTION, data);
+};
+
+/**
+ * Update user
+ */
+export const updateUser = async (
+  id: string, 
+  data: Partial<Omit<User, 'id' | 'createdAt' | 'updatedAt'>>
+): Promise<void> => {
   await updateDocument<User>(USERS_COLLECTION, id, data);
 };
 
-// Delete user
+/**
+ * Delete user
+ */
 export const deleteUser = async (id: string): Promise<void> => {
   // First get the user to check their role
   const user = await getUserById(id);
@@ -74,15 +92,24 @@ export const deleteUser = async (id: string): Promise<void> => {
   await deleteDocument(USERS_COLLECTION, id);
 };
 
-// Get all users
+/**
+ * Get all users
+ */
 export const getAllUsers = async (): Promise<User[]> => {
-  return await getDocuments<User>(USERS_COLLECTION);
+  return await getDocuments<User>(USERS_COLLECTION, [], 'createdAt', 'desc');
 };
 
-// Get users by role
-export const getUsersByRole = async (role: Role): Promise<User[]> => {
-  return await getDocuments<User>(
+/**
+ * Get user by email
+ */
+export const getUserByEmail = async (email: string): Promise<User | null> => {
+  const users = await getDocuments<User>(
     USERS_COLLECTION,
-    [{ field: 'role', operator: '==', value: role }]
+    [{ field: 'email', operator: '==', value: email }],
+    undefined,
+    'desc',
+    1
   );
+  
+  return users.length > 0 ? users[0] : null;
 }; 

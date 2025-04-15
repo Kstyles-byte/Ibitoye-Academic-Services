@@ -7,6 +7,8 @@ import { useRouter } from 'expo-router';
 import { getDocuments, updateDocument, getDocumentById, subscribeToCollection } from '../lib/db/firestore';
 import { ServiceRequest, RequestStatus, Client, User, Service, Attachment, Role } from '../lib/db/types';
 import { getAttachmentsByServiceRequestId } from '../lib/db/repositories/serviceRequestRepository';
+import { sendRequestApprovalEmail } from '../lib/email/service';
+import { getUserById } from '../lib/db/repositories/userRepository';
 
 interface RequestWithDetails extends ServiceRequest {
   client?: {
@@ -352,6 +354,26 @@ const RequestMonitoring = () => {
     try {
       await updateDocument<ServiceRequest>('serviceRequests', requestId, { status: newStatus });
       
+      // Send approval notification to client if request is approved
+      if (newStatus === RequestStatus.APPROVED) {
+        try {
+          // Get the full request data to access client information
+          const request = await getDocumentById<ServiceRequest>('serviceRequests', requestId);
+          if (request && request.clientId) {
+            // Get the client user information
+            const clientUser = await getUserById(request.clientId);
+            if (clientUser && clientUser.email) {
+              const clientName = clientUser.displayName || clientUser.name || 'Valued Client';
+              // Send approval email
+              await sendRequestApprovalEmail(request, clientUser.email, clientName);
+            }
+          }
+        } catch (emailError) {
+          console.error('Error sending approval email:', emailError);
+          // Continue with success flow even if email sending fails
+        }
+      }
+      
       setSelectedRequest(null);
       Alert.alert('Success', 'Request status updated successfully');
     } catch (error) {
@@ -595,13 +617,13 @@ const RequestMonitoring = () => {
                   <Button
                     title="Approve"
                     onPress={() => handleUpdateRequestStatus(request.id, RequestStatus.APPROVED)}
-                    style={styles.actionButton}
+                    style={styles.modalActionButton}
                   />
                   <Button
                     title="Reject"
                     onPress={() => handleUpdateRequestStatus(request.id, RequestStatus.REJECTED)}
                     variant="danger"
-                    style={styles.actionButton}
+                    style={styles.modalActionButton}
                   />
                 </View>
               )}
@@ -1076,13 +1098,13 @@ const RequestMonitoring = () => {
                 <Button
                   title="Approve"
                   onPress={() => handleUpdateRequestStatus(selectedRequest.id, RequestStatus.APPROVED)}
-                  style={styles.actionButton}
+                  style={styles.modalActionButton}
                 />
                 <Button
                   title="Reject"
                   onPress={() => handleUpdateRequestStatus(selectedRequest.id, RequestStatus.REJECTED)}
                   variant="danger"
-                  style={styles.actionButton}
+                  style={styles.modalActionButton}
                 />
               </View>
             )}
@@ -1340,6 +1362,10 @@ const styles = StyleSheet.create({
     marginLeft: Spacing.xs,
     minWidth: 90,
   },
+  modalActionButton: {
+    marginLeft: Spacing.sm,
+    minWidth: 120,
+  },
   modalOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
@@ -1421,10 +1447,6 @@ const styles = StyleSheet.create({
   },
   actionButtonGroup: {
     flexDirection: 'row',
-  },
-  actionButton: {
-    marginLeft: Spacing.sm,
-    minWidth: 120,
   },
   refreshButton: {
     flexDirection: 'row',

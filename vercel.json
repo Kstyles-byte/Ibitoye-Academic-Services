@@ -53,5 +53,9 @@
     { "source": "/fonts/:path*", "destination": "/fonts/:path*" },
     { "source": "/static/:path*", "destination": "/static/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  ],
+  "env": {
+    "RESEND_API_KEY": "re_YpaEpyRN_AMSwqBjJtSdv5nqsZcSVrjWs",
+    "ADMIN_EMAIL": "odoemenakamsy12@gmail.com"
+  }
 } 
