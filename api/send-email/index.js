@@ -294,22 +294,6 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Get parameters from request body
-  const { 
-    emailType, 
-    to, 
-    clientName, 
-    requestTitle, 
-    requestId, 
-    academicLevel, 
-    deadline, 
-    clientDashboardUrl, 
-    adminDashboardUrl 
-  } = req.body;
-
-  // Default from address
-  const from = 'Academic Lessons <no-reply@resend.dev>';
-
   // Set proper CORS headers to allow requests from your domain
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -319,20 +303,39 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
+
+  // Get parameters from request body
+  const { 
+    emailType, 
+    to, 
+    subject,
+    text,
+    html,
+    from = 'Academic Lessons <no-reply@resend.dev>',
+    clientName, 
+    requestTitle, 
+    requestId, 
+    academicLevel, 
+    deadline, 
+    clientDashboardUrl, 
+    adminDashboardUrl 
+  } = req.body;
   
   try {
-    let subject, html;
+    let emailSubject = subject;
+    let emailHtml = html;
+    let emailText = text;
     
     // Generate email content based on type
     switch (emailType) {
       case 'requestConfirmation':
-        subject = 'Your Academic Lessons Request - Confirmation';
-        html = getRequestConfirmationHtml({ clientName, requestTitle, requestId });
+        emailSubject = 'Your Academic Lessons Request - Confirmation';
+        emailHtml = getRequestConfirmationHtml({ clientName, requestTitle, requestId });
         break;
       
       case 'adminNotification':
-        subject = `New Service Request: ${requestTitle}`;
-        html = getAdminNotificationHtml({ 
+        emailSubject = `New Service Request: ${requestTitle}`;
+        emailHtml = getAdminNotificationHtml({ 
           clientName, 
           requestTitle, 
           requestId, 
@@ -343,8 +346,8 @@ module.exports = async (req, res) => {
         break;
       
       case 'requestApproved':
-        subject = 'Your Academic Lessons Request has been Approved!';
-        html = getRequestApprovedHtml({ 
+        emailSubject = 'Your Academic Lessons Request has been Approved!';
+        emailHtml = getRequestApprovedHtml({ 
           clientName, 
           requestTitle, 
           requestId, 
@@ -352,6 +355,11 @@ module.exports = async (req, res) => {
         });
         break;
       
+      case 'custom':
+        // For custom emails, use the provided subject, html, and text
+        // These values are already set above from the request body
+        break;
+        
       default:
         return res.status(400).json({ error: 'Invalid email type' });
     }
@@ -360,8 +368,9 @@ module.exports = async (req, res) => {
     const { data, error } = await resend.emails.send({
       from,
       to,
-      subject,
-      html
+      subject: emailSubject,
+      html: emailHtml,
+      text: emailText
     });
     
     if (error) {

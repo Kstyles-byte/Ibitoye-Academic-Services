@@ -32,20 +32,54 @@ export const sendEmail = async (options: EmailOptions) => {
       subject
     });
 
-    const { data, error } = await resend.emails.send({
-      from,
-      to: Array.isArray(to) ? to : [to],
-      subject,
-      text,
-      html,
-    });
+    // Check if we're running in a browser environment (client-side)
+    if (typeof window !== 'undefined') {
+      // In browser context, we need to call our serverless function instead of Resend directly
+      
+      // Determine the API URL (works with relative URLs in production)
+      // This avoids CORS issues by using the same origin
+      const apiUrl = '/api/send-email';
+      console.log(`Sending email via API endpoint: ${apiUrl}`);
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          emailType: 'custom',
+          to: Array.isArray(to) ? to[0] : to, // API expects a single recipient
+          subject,
+          text,
+          html,
+          from
+        }),
+      });
 
-    if (error) {
-      console.error('Error sending email:', error);
-      throw new Error(`Failed to send email: ${error.message}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Failed to send email: ${errorData.error || 'Unknown error'}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } else {
+      // Server-side: call Resend API directly
+      const { data, error } = await resend.emails.send({
+        from,
+        to: Array.isArray(to) ? to : [to],
+        subject,
+        text,
+        html,
+      });
+
+      if (error) {
+        console.error('Error sending email:', error);
+        throw new Error(`Failed to send email: ${error.message}`);
+      }
+
+      return data;
     }
-
-    return data;
   } catch (error: any) {
     console.error('Error sending email:', error);
     throw new Error(`Failed to send email: ${error.message}`);
