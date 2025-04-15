@@ -56,6 +56,8 @@
   ],
   "env": {
     "RESEND_API_KEY": "re_YpaEpyRN_AMSwqBjJtSdv5nqsZcSVrjWs",
-    "ADMIN_EMAIL": "odoemenakamsy12@gmail.com"
+    "ADMIN_EMAIL": "odoemenakamsy12@gmail.com",
+    "EXPO_PUBLIC_RESEND_API_KEY": "re_YpaEpyRN_AMSwqBjJtSdv5nqsZcSVrjWs",
+    "EXPO_PUBLIC_ADMIN_EMAIL": "odoemenakamsy12@gmail.com"
   }
 } 

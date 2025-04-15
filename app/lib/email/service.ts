@@ -5,9 +5,10 @@ import { getRequestApprovedEmailHtml, getRequestApprovedEmailText } from './temp
 import { ServiceRequest } from '../db/types';
 import { formatDate } from '../utils/formatters';
 
-const DEFAULT_ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@yourcompany.com';
-const CLIENT_DASHBOARD_BASE_URL = process.env.VERCEL_URL ? 
-  `https://${process.env.VERCEL_URL}` : 
+// Use EXPO_PUBLIC prefix for client-side environment variables
+const DEFAULT_ADMIN_EMAIL = process.env.EXPO_PUBLIC_ADMIN_EMAIL || process.env.ADMIN_EMAIL || 'odoemenakamsy12@gmail.com';
+const CLIENT_DASHBOARD_BASE_URL = process.env.EXPO_PUBLIC_VERCEL_URL || process.env.VERCEL_URL ? 
+  `https://${process.env.EXPO_PUBLIC_VERCEL_URL || process.env.VERCEL_URL}` : 
   'http://localhost:3000';
 
 const ADMIN_DASHBOARD_BASE_URL = `${CLIENT_DASHBOARD_BASE_URL}/(admin)/requests`;
@@ -21,6 +22,8 @@ export const sendRequestConfirmationEmail = async (
   clientName: string
 ) => {
   try {
+    console.log(`Preparing to send confirmation email to: ${clientEmail}`);
+    
     const html = getRequestConfirmationEmailHtml({
       clientName,
       requestTitle: serviceRequest.subject,
@@ -54,6 +57,8 @@ export const sendAdminNotificationEmail = async (
   clientName: string
 ) => {
   try {
+    console.log(`Preparing to send admin notification email to: ${DEFAULT_ADMIN_EMAIL}`);
+    
     const deadline = formatDate(serviceRequest.deadline);
     
     // Create a unique URL to directly view this request
@@ -99,6 +104,8 @@ export const sendRequestApprovalEmail = async (
   clientName: string
 ) => {
   try {
+    console.log(`Preparing to send approval email to: ${clientEmail}`);
+    
     // Create a URL to view the request in the client dashboard
     const clientDashboardUrl = `${CLIENT_DASHBOARD_BASE_URL}/(client)/dashboard`;
 
