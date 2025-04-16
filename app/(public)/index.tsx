@@ -22,15 +22,6 @@ interface Feature {
   icon: string;
 }
 
-interface Testimonial {
-  id: number;
-  name: string;
-  role: string;
-  text: string;
-  avatar: string;
-  rating: number;
-}
-
 const HomePage = () => {
   const router = useRouter();
   const { width } = useWindowDimensions();
@@ -121,55 +112,6 @@ const HomePage = () => {
     },
   ];
 
-  const testimonials: Testimonial[] = [
-    {
-      id: 1,
-      name: 'Sarah Johnson',
-      role: 'Medical Student',
-      text: 'The academic support I received was outstanding. My assignments were completed to a high standard, and the feedback helped me improve my own work.',
-      avatar: '👩‍⚕️',
-      rating: 5,
-    },
-    {
-      id: 2,
-      name: 'Michael Chen',
-      role: 'Engineering Major',
-      text: 'I was struggling with complex engineering concepts until I found this service. The expert tutors explained everything clearly and helped me achieve an A in my course.',
-      avatar: '👨‍🔧',
-      rating: 5,
-    },
-    {
-      id: 3,
-      name: 'Jessica Williams',
-      role: 'Business Student',
-      text: 'The quality of work exceeded my expectations. The research paper I received was well-structured, thoroughly researched, and perfectly cited.',
-      avatar: '👩‍💼',
-      rating: 5,
-    },
-  ];
-
-  const renderRatingStars = (rating: number) => {
-    return (
-      <View style={styles.ratingContainer}>
-        {[...Array(5)].map((_, i) => (
-          <SafeIcon
-            key={i}
-            name="Star"
-            size={16}
-            color={i < rating ? Colors.warning : Colors.light}
-            style={styles.starIcon}
-          />
-        ))}
-      </View>
-    );
-  };
-
-  const getServiceCardWidth = () => {
-    if (isMobile) return '100%';
-    if (isTablet) return '48%';
-    return '23%';
-  };
-
   // Services Section rendering
   const renderServices = () => {
     if (loadingServices) {
@@ -202,28 +144,29 @@ const HomePage = () => {
               isMobile ? styles.serviceCardWrapperMobile : null
             ]}
           >
-            <Card style={styles.serviceCard}>
-              <View style={styles.serviceIconContainer}>
-                <SafeIcon 
-                  name={service.icon as any} 
-                  size={32} 
-                  color={Colors.white} 
-                />
-              </View>
-              <Text variant="h5" weight="semiBold" style={styles.serviceTitle}>
-                {service.title}
-              </Text>
-              <Text style={styles.serviceDescription}>
-                {service.description}
-              </Text>
-              <Pressable 
-                style={styles.learnMoreBtn}
-                onPress={() => router.push('/(public)/services')}
-              >
-                <Text style={styles.learnMoreText}>Learn more</Text>
-                <SafeIcon name="ArrowRight" size={16} color={Colors.primary} />
-              </Pressable>
-            </Card>
+            <Pressable 
+              onPress={() => router.push('/(auth)/login')}
+              style={({pressed}) => [
+                {opacity: pressed ? 0.9 : 1},
+                {transform: [{ scale: pressed ? 0.98 : 1 }]},
+              ]}
+            >
+              <Card style={styles.serviceCard}>
+                <View style={styles.serviceIconContainer}>
+                  <SafeIcon 
+                    name={service.icon as any} 
+                    size={32} 
+                    color={Colors.white} 
+                  />
+                </View>
+                <Text variant="h5" weight="semiBold" style={styles.serviceTitle}>
+                  {service.title}
+                </Text>
+                <Text style={styles.serviceDescription}>
+                  {service.description}
+                </Text>
+              </Card>
+            </Pressable>
           </View>
         ))}
       </View>
@@ -442,42 +385,6 @@ const HomePage = () => {
         </Container>
       </View>
 
-      {/* Testimonials Section */}
-      <View style={styles.testimonialsContainer}>
-        <Container style={styles.section}>
-          <View style={styles.sectionHeader}>
-          <Text variant="h2" weight="bold" style={styles.sectionTitle}>
-              Student Success Stories
-          </Text>
-          <View style={styles.titleUnderline} />
-            <Text style={styles.sectionSubtitle}>
-              Read what our students have to say about our academic services
-            </Text>
-        </View>
-        
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          style={styles.testimonialScroll}
-          contentContainerStyle={styles.testimonialScrollContent}
-        >
-          {testimonials.map((testimonial) => (
-            <Card key={testimonial.id} style={styles.testimonialCard}>
-              <Text style={styles.testimonialAvatar}>{testimonial.avatar}</Text>
-              <Text variant="h5" weight="semiBold" style={styles.testimonialName}>
-                {testimonial.name}
-              </Text>
-                <Text style={styles.testimonialRole}>{testimonial.role}</Text>
-              {renderRatingStars(testimonial.rating)}
-              <Text style={styles.testimonialText}>
-                "{testimonial.text}"
-              </Text>
-            </Card>
-          ))}
-        </ScrollView>
-        </Container>
-      </View>
-
       {/* Call to Action Section */}
       <View style={styles.ctaContainer}>
         <View style={styles.ctaHeader}>
@@ -691,20 +598,8 @@ const styles = StyleSheet.create({
   },
   serviceDescription: {
     color: Colors.secondary,
-    marginBottom: Spacing.md,
     fontSize: 15,
     lineHeight: 20,
-  },
-  learnMoreBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 'auto',
-  },
-  learnMoreText: {
-    color: Colors.primary,
-    marginRight: Spacing.xs,
-    fontWeight: '600',
-    fontSize: 14,
   },
   // Features Section
   featuresSection: {
@@ -808,61 +703,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     alignSelf: 'center',
     marginTop: 30,
-  },
-  // Testimonials Section
-  testimonialsContainer: {
-    backgroundColor: '#f8f9fa',
-  },
-  testimonialScroll: {
-    marginTop: Spacing.lg,
-  },
-  testimonialScrollContent: {
-    paddingHorizontal: Spacing.sm,
-    paddingBottom: Spacing.md,
-  },
-  testimonialCard: {
-    width: 350,
-    marginHorizontal: Spacing.md,
-    padding: Spacing.lg,
-    borderRadius: 16,
-    elevation: 4,
-    shadowColor: Colors.dark,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.05)',
-    backgroundColor: Colors.white,
-  },
-  testimonialAvatar: {
-    fontSize: 48,
-    marginBottom: Spacing.sm,
-    textAlign: 'center',
-  },
-  testimonialName: {
-    marginBottom: Spacing.xs,
-    textAlign: 'center',
-    color: Colors.dark,
-  },
-  testimonialRole: {
-    fontSize: 14,
-    color: Colors.secondary,
-    textAlign: 'center',
-    marginBottom: Spacing.sm,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: Spacing.md,
-  },
-  starIcon: {
-    marginHorizontal: 2,
-  },
-  testimonialText: {
-    fontStyle: 'italic',
-    textAlign: 'center',
-    lineHeight: 24,
-    color: Colors.secondary,
   },
   // Call to Action Section
   ctaContainer: {
