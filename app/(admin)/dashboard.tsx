@@ -90,31 +90,11 @@ const AdminDashboard = () => {
             />
 
             <AdminCard
-              title="Expert Verification"
-              description="Review and verify expert applications"
-              icon="Check"
-              onPress={() => {
-                router.push('/(admin)/expert-verification');
-              }}
-            />
-
-            <AdminCard
               title="Request Monitoring"
               description="Monitor and manage service requests"
               icon="Search"
               onPress={() => {
                 router.push('/(admin)/requests');
-              }}
-            />
-
-            <AdminCard
-              title="System Settings"
-              description="Configure system settings and parameters"
-              icon="Settings"
-              onPress={() => {
-                // Navigate to system settings screen
-                // router.push('/(admin)/settings');
-                alert('System settings will be available soon');
               }}
             />
           </View>

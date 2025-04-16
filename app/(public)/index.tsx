@@ -1,80 +1,150 @@
-import React from 'react';
-import { StyleSheet, View, Image, ScrollView, Dimensions, ImageBackground, useWindowDimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, ScrollView, useWindowDimensions, Animated, Pressable, ActivityIndicator } from 'react-native';
 import { Container, Text, Button, Card } from '../components/UI';
 import { SafeIcon } from '../components/UI/SafeIcon';
 import { Colors, Spacing, Layout } from '../constants';
 import { useRouter } from 'expo-router';
+import { getAllServices } from '../lib/db/repositories/serviceRepository';
+import { Service as FirebaseService } from '../lib/db/types';
 
-// Define the type for testimonial objects
-interface Testimonial {
-  id: number;
-  name: string;
-  text: string;
-  avatar: string;
-  rating: number;
+// Define types
+interface Service {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
 }
 
-// Define the type for service objects
-interface Service {
+interface Feature {
   id: number;
   title: string;
   description: string;
   icon: string;
 }
 
+interface Testimonial {
+  id: number;
+  name: string;
+  role: string;
+  text: string;
+  avatar: string;
+  rating: number;
+}
+
 const HomePage = () => {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
+  const isTablet = width >= 768 && width < 1024;
+  const [services, setServices] = useState<Service[]>([]);
+  const [loadingServices, setLoadingServices] = useState(true);
 
-  const services: Service[] = [
+  // Fetch services from Firebase
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setLoadingServices(true);
+        const firebaseServices = await getAllServices(true); // Only get active services
+        
+        // Map Firebase service fields to our UI Service type
+        const mappedServices = firebaseServices.map(service => ({
+          id: service.id,
+          title: service.name,
+          description: service.description,
+          // Assign icon based on category or use a default
+          icon: getIconForCategory(service.category),
+        }));
+        
+        setServices(mappedServices);
+      } catch (error) {
+        console.error('Error fetching services:', error);
+        // In case of error, set empty array
+        setServices([]);
+      } finally {
+        setLoadingServices(false);
+      }
+    };
+    
+    fetchServices();
+  }, []);
+
+  // Helper function to assign icons based on service category
+  const getIconForCategory = (category: string): string => {
+    const iconMap: Record<string, string> = {
+      'Assignment': 'FileText',
+      'Essay': 'Edit',
+      'Research': 'BookOpen',
+      'Exam': 'CheckSquare',
+      'Dissertation': 'BookOpen',
+      'Presentation': 'Monitor',
+      'Thesis': 'Award',
+      'Case Study': 'Briefcase',
+      'Lab Report': 'Clipboard',
+    };
+    
+    // Return matching icon or default
+    return iconMap[category] || 'FileText';
+  };
+
+  // Animated values
+  const scrollY = React.useRef(new Animated.Value(0)).current;
+  const heroOpacity = scrollY.interpolate({
+    inputRange: [0, 400],
+    outputRange: [1, 0.6],
+    extrapolate: 'clamp',
+  });
+
+  const features: Feature[] = [
     {
       id: 1,
-      title: 'Assignment Help',
-      description: 'Expert assistance with all types of academic assignments',
-      icon: 'FileText',
+      title: 'Expert Tutors',
+      description: 'Learn from certified professionals with years of experience in their fields',
+      icon: 'Users',
     },
     {
       id: 2,
-      title: 'Essay Writing',
-      description: 'Professional essay writing services for all academic levels',
-      icon: 'Edit',
+      title: 'Personalized Learning',
+      description: 'Tailored approach to meet your specific academic needs and goals',
+      icon: 'Target',
     },
     {
       id: 3,
-      title: 'Research Papers',
-      description: 'In-depth research and well-structured papers with proper citations',
-      icon: 'FileText',
+      title: 'Timely Delivery',
+      description: 'Guaranteed on-time completion of all assignments and projects',
+      icon: 'Clock',
     },
     {
       id: 4,
-      title: 'Thesis & Dissertations',
-      description: 'Comprehensive support for graduate-level research projects',
-      icon: 'BookOpen',
+      title: '24/7 Support',
+      description: 'Round-the-clock assistance whenever you need guidance or have questions',
+      icon: 'Headphones',
     },
   ];
 
   const testimonials: Testimonial[] = [
     {
       id: 1,
-      name: 'Sarah K.',
-      text: 'The service was excellent! My assignment was completed on time and the quality exceeded my expectations.',
-      avatar: '👩‍🎓',
+      name: 'Sarah Johnson',
+      role: 'Medical Student',
+      text: 'The academic support I received was outstanding. My assignments were completed to a high standard, and the feedback helped me improve my own work.',
+      avatar: '👩‍⚕️',
       rating: 5,
     },
     {
       id: 2,
-      name: 'Michael T.',
-      text: 'I was struggling with my research paper until I found this service. The expert helped me understand the topic better and improve my work.',
-      avatar: '👨‍🎓',
+      name: 'Michael Chen',
+      role: 'Engineering Major',
+      text: 'I was struggling with complex engineering concepts until I found this service. The expert tutors explained everything clearly and helped me achieve an A in my course.',
+      avatar: '👨‍🔧',
       rating: 5,
     },
     {
       id: 3,
-      name: 'Jenny L.',
-      text: 'Very professional service. Communication was clear, and they delivered exactly what I needed for my dissertation.',
-      avatar: '👩‍🔬',
-      rating: 4,
+      name: 'Jessica Williams',
+      role: 'Business Student',
+      text: 'The quality of work exceeded my expectations. The research paper I received was well-structured, thoroughly researched, and perfectly cited.',
+      avatar: '👩‍💼',
+      rating: 5,
     },
   ];
 
@@ -86,7 +156,7 @@ const HomePage = () => {
             key={i}
             name="Star"
             size={16}
-            color={i < rating ? Colors.warning : Colors.secondary}
+            color={i < rating ? Colors.warning : Colors.light}
             style={styles.starIcon}
           />
         ))}
@@ -94,17 +164,97 @@ const HomePage = () => {
     );
   };
 
+  const getServiceCardWidth = () => {
+    if (isMobile) return '100%';
+    if (isTablet) return '48%';
+    return '23%';
+  };
+
+  // Services Section rendering
+  const renderServices = () => {
+    if (loadingServices) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={styles.loadingText}>Loading services...</Text>
+        </View>
+      );
+    }
+
+    if (services.length === 0) {
+      return (
+        <View style={styles.noServicesContainer}>
+          <SafeIcon name="Info" size={32} color={Colors.secondary} />
+          <Text style={styles.noServicesText}>
+            No services available at the moment. Please check back later.
+          </Text>
+        </View>
+      );
+    }
+
+    return (
+      <View style={[styles.servicesGrid, isMobile && styles.servicesGridMobile]}>
+        {services.map((service) => (
+          <View 
+            key={service.id}
+            style={[
+              styles.serviceCardWrapper,
+              isMobile ? styles.serviceCardWrapperMobile : null
+            ]}
+          >
+            <Card style={styles.serviceCard}>
+              <View style={styles.serviceIconContainer}>
+                <SafeIcon 
+                  name={service.icon as any} 
+                  size={32} 
+                  color={Colors.white} 
+                />
+              </View>
+              <Text variant="h5" weight="semiBold" style={styles.serviceTitle}>
+                {service.title}
+              </Text>
+              <Text style={styles.serviceDescription}>
+                {service.description}
+              </Text>
+              <Pressable 
+                style={styles.learnMoreBtn}
+                onPress={() => router.push('/(public)/services')}
+              >
+                <Text style={styles.learnMoreText}>Learn more</Text>
+                <SafeIcon name="ArrowRight" size={16} color={Colors.primary} />
+              </Pressable>
+            </Card>
+          </View>
+        ))}
+      </View>
+    );
+  };
+
   return (
-    <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+    <ScrollView 
+      style={styles.scrollView} 
+      showsVerticalScrollIndicator={false}
+      onScroll={Animated.event(
+        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+        { useNativeDriver: false }
+      )}
+      scrollEventThrottle={16}
+    >
       {/* Hero Section */}
-      <View style={styles.heroContainer}>
-        <View style={styles.heroOverlay} />
-        <View style={styles.heroContent}>
+      <Animated.View style={[styles.heroContainer, { opacity: heroOpacity }]}>
+        <View style={styles.heroHeader}>
+          <Text variant="h4" weight="bold" style={styles.headerText}>
+            Academic Lessons
+          </Text>
+        </View>
+        <View style={styles.heroBackground}>
+          <Container style={styles.heroContent}>
+            <View style={styles.heroTextContainer}>
           <Text variant="h1" weight="bold" style={styles.heroTitle}>
-            Academic Excellence{"\n"}Made Simple
+                Academic Excellence{"\n"}Within Reach
           </Text>
           <Text style={styles.heroSubtitle}>
-            Professional assistance for your academic journey
+                Professional academic assistance tailored to your educational journey
           </Text>
           <View style={styles.heroBtnContainer}>
             <Button 
@@ -123,114 +273,186 @@ const HomePage = () => {
             />
           </View>
         </View>
+          </Container>
+        </View>
+      </Animated.View>
+
+      {/* Stats Section */}
+      <View style={styles.statsContainer}>
+        <Container>
+          <View style={styles.statsGrid}>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>1000+</Text>
+              <Text style={styles.statLabel}>Completed Projects</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>98%</Text>
+              <Text style={styles.statLabel}>Satisfaction Rate</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>24/7</Text>
+              <Text style={styles.statLabel}>Support</Text>
+            </View>
+          </View>
+        </Container>
       </View>
 
       {/* Services Section */}
-      <Container style={styles.sectionContainer}>
-        <View style={styles.sectionHeading}>
-          <Text variant="h2" weight="bold" style={styles.sectionTitle}>
-            Our Services
-          </Text>
-          <View style={styles.titleUnderline} />
-          <Text style={styles.sectionSubtitle}>
-            We offer a wide range of academic services to help you succeed
-          </Text>
-        </View>
-        
-        <View style={isMobile ? styles.servicesGridMobile : styles.servicesGrid}>
-          {services.map((service) => (
-            <Card key={service.id} style={isMobile ? styles.serviceCardMobile : styles.serviceCard}>
-              <View style={styles.serviceIconContainer}>
-                <SafeIcon 
-                  name={service.icon as any} 
-                  size={40} 
-                  color={Colors.white} 
-                />
+      <View style={{
+        paddingVertical: Spacing.xxl,
+        backgroundColor: Colors.white,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+      }}>
+        <Container>
+          <View style={styles.sectionHeader}>
+            <Text variant="h2" weight="bold" style={styles.sectionTitle}>
+              Our Services
+            </Text>
+            <View style={styles.titleUnderline} />
+            <Text style={styles.sectionSubtitle}>
+              We offer comprehensive academic support designed to help you succeed
+            </Text>
+          </View>
+          
+          {renderServices()}
+        </Container>
+      </View>
+
+      {/* Features Section */}
+      <View style={{
+        paddingVertical: Spacing.xxl,
+        backgroundColor: '#f8f9fa',
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(0, 0, 0, 0.05)',
+      }}>
+        <Container>
+          <View style={styles.sectionHeader}>
+            <Text variant="h2" weight="bold" style={styles.sectionTitle}>
+              Why Choose Us
+            </Text>
+            <View style={styles.titleUnderline} />
+            <Text style={styles.sectionSubtitle}>
+              Discover the advantages that set our academic services apart
+            </Text>
+          </View>
+          
+          <View style={[
+            styles.featuresGrid, 
+            isMobile && styles.featuresGridMobile,
+            isTablet && styles.featuresGridTablet
+          ]}>
+            {features.map((feature) => (
+              <View 
+                key={feature.id} 
+                style={[
+                  styles.featureItem,
+                  isMobile && { width: '100%' }
+                ]}
+              >
+                <View style={styles.featureIconContainer}>
+                  <SafeIcon 
+                    name={feature.icon as any} 
+                    size={24} 
+                    color={Colors.primary} 
+                  />
+                </View>
+                <View style={styles.featureContent}>
+                  <Text variant="h5" weight="semiBold" style={styles.featureTitle}>
+                    {feature.title}
+                  </Text>
+                  <Text style={styles.featureDescription}>
+                    {feature.description}
+                  </Text>
+                </View>
               </View>
-              <Text variant="h5" weight="semiBold" style={styles.serviceTitle}>
-                {service.title}
-              </Text>
-              <Text variant="small" style={styles.serviceDescription}>
-                {service.description}
-              </Text>
-            </Card>
-          ))}
-        </View>
-        
-        <Button 
-          title="View All Services" 
-          variant="outline" 
-          onPress={() => router.push('/(public)/services')}
-          style={styles.servicesButton}
-        />
-      </Container>
+            ))}
+          </View>
+        </Container>
+      </View>
 
       {/* How It Works Section */}
-      <View style={styles.howItWorksContainer}>
+      <View style={{
+        paddingVertical: Spacing.xxl,
+        backgroundColor: Colors.white,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(0, 0, 0, 0.05)',
+      }}>
         <Container>
-          <View style={styles.sectionHeading}>
+          <View style={styles.sectionHeader}>
             <Text variant="h2" weight="bold" style={styles.sectionTitle}>
               How It Works
             </Text>
             <View style={styles.titleUnderline} />
+            <Text style={styles.sectionSubtitle}>
+              Our simple three-step process to get the academic help you need
+            </Text>
           </View>
           
-          <View style={isMobile ? styles.stepsContainerMobile : styles.stepsContainer}>
-            <View style={styles.stepConnector} />
-            {!isMobile && <View style={styles.stepConnectorLine} />}
-            
-            <View style={isMobile ? styles.stepMobile : styles.step}>
+          <View style={[styles.stepsContainer, isMobile && styles.stepsContainerMobile]}>
+            <View style={[
+              styles.step,
+              isMobile && { width: '100%', marginBottom: Spacing.xl }
+            ]}>
               <View style={styles.stepNumberContainer}>
-                <Text variant="h3" weight="bold" color={Colors.white}>1</Text>
+                <Text style={styles.stepNumber}>1</Text>
               </View>
-              <View style={styles.stepContent}>
-                <Text variant="h4" weight="semiBold" style={styles.stepTitle}>
-                  Submit Your Request
-                </Text>
-                <Text style={styles.stepDescription}>
-                  Fill out the service request form with your requirements and academic level
-                </Text>
-              </View>
+              <Text variant="h5" weight="semiBold" style={styles.stepTitle}>
+                Submit Your Request
+              </Text>
+              <Text style={styles.stepDescription}>
+                Fill out our simple form with your academic requirements
+              </Text>
             </View>
             
-            <View style={isMobile ? styles.stepMobile : styles.step}>
+            {!isMobile && <View style={styles.stepConnector} />}
+            
+            <View style={[
+              styles.step,
+              isMobile && { width: '100%', marginBottom: Spacing.xl }
+            ]}>
               <View style={styles.stepNumberContainer}>
-                <Text variant="h3" weight="bold" color={Colors.white}>2</Text>
+                <Text style={styles.stepNumber}>2</Text>
               </View>
-              <View style={styles.stepContent}>
-                <Text variant="h4" weight="semiBold" style={styles.stepTitle}>
-                  Get Matched With an Expert
-                </Text>
-                <Text style={styles.stepDescription}>
-                  We'll match you with a qualified expert in your field based on your specific needs
-                </Text>
-              </View>
+              <Text variant="h5" weight="semiBold" style={styles.stepTitle}>
+                Get Matched with an Expert
+              </Text>
+              <Text style={styles.stepDescription}>
+                We'll connect you with a qualified specialist in your field
+              </Text>
             </View>
             
-            <View style={isMobile ? styles.stepMobile : styles.step}>
+            {!isMobile && <View style={styles.stepConnector} />}
+            
+            <View style={[
+              styles.step,
+              isMobile && { width: '100%', marginBottom: Spacing.xl }
+            ]}>
               <View style={styles.stepNumberContainer}>
-                <Text variant="h3" weight="bold" color={Colors.white}>3</Text>
+                <Text style={styles.stepNumber}>3</Text>
               </View>
-              <View style={styles.stepContent}>
-                <Text variant="h4" weight="semiBold" style={styles.stepTitle}>
-                  Receive Your Solution
-                </Text>
-                <Text style={styles.stepDescription}>
-                  Get your completed work delivered on time with guaranteed quality and satisfaction
-                </Text>
-              </View>
+              <Text variant="h5" weight="semiBold" style={styles.stepTitle}>
+                Receive Your Solution
+              </Text>
+              <Text style={styles.stepDescription}>
+                Get your completed work delivered on time with satisfaction guaranteed
+              </Text>
             </View>
           </View>
         </Container>
       </View>
 
       {/* Testimonials Section */}
-      <Container style={styles.sectionContainer}>
-        <View style={styles.sectionHeading}>
+      <View style={styles.testimonialsContainer}>
+        <Container style={styles.section}>
+          <View style={styles.sectionHeader}>
           <Text variant="h2" weight="bold" style={styles.sectionTitle}>
-            What Our Clients Say
+              Student Success Stories
           </Text>
           <View style={styles.titleUnderline} />
+            <Text style={styles.sectionSubtitle}>
+              Read what our students have to say about our academic services
+            </Text>
         </View>
         
         <ScrollView 
@@ -245,6 +467,7 @@ const HomePage = () => {
               <Text variant="h5" weight="semiBold" style={styles.testimonialName}>
                 {testimonial.name}
               </Text>
+                <Text style={styles.testimonialRole}>{testimonial.role}</Text>
               {renderRatingStars(testimonial.rating)}
               <Text style={styles.testimonialText}>
                 "{testimonial.text}"
@@ -252,61 +475,45 @@ const HomePage = () => {
             </Card>
           ))}
         </ScrollView>
-      </Container>
-
-      {/* Statistics Section */}
-      <View style={styles.statsContainer}>
-        <Container>
-          <View style={isMobile ? styles.statsGridMobile : styles.statsGrid}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>1000+</Text>
-              <Text style={styles.statLabel}>Completed Projects</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>98%</Text>
-              <Text style={styles.statLabel}>Satisfaction Rate</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>50+</Text>
-              <Text style={styles.statLabel}>Expert Tutors</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>24/7</Text>
-              <Text style={styles.statLabel}>Customer Support</Text>
-            </View>
-          </View>
         </Container>
       </View>
 
-      {/* Call to Action */}
+      {/* Call to Action Section */}
       <View style={styles.ctaContainer}>
+        <View style={styles.ctaHeader}>
+          <Text variant="h4" weight="bold" style={styles.ctaHeaderText}>
+            Ready to Excel?
+          </Text>
+        </View>
+        <View style={styles.ctaBackground}>
         <Container>
           <View style={styles.ctaContent}>
             <Text variant="h2" weight="bold" style={styles.ctaTitle}>
               Ready to Excel Academically?
             </Text>
             <Text style={styles.ctaSubtitle}>
-              Join thousands of students who trust our services for their academic needs
+                Join thousands of students who have achieved academic success with our support
             </Text>
             <View style={styles.ctaBtnContainer}>
               <Button 
-                title="Create an Account" 
-                variant="secondary" 
+                  title="Get Started Today" 
+                  variant="primary" 
                 size="large"
                 onPress={() => router.push('/(auth)/register')}
                 style={styles.ctaButton}
               />
               <Button 
-                title="Contact Us" 
+                  title="Learn More" 
                 variant="outline"
                 size="large"
-                onPress={() => router.push('/(public)/contact')}
+                  onPress={() => router.push('/(public)/about')}
                 style={styles.ctaSecondaryBtn}
                 textStyle={styles.ctaSecondaryBtnText}
               />
             </View>
           </View>
         </Container>
+        </View>
       </View>
     </ScrollView>
   );
@@ -317,38 +524,42 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.light,
   },
+  // Hero Section
   heroContainer: {
-    backgroundColor: Colors.primary,
-    paddingVertical: Spacing.xxl * 2,
-    paddingHorizontal: Spacing.md,
-    position: 'relative',
+    width: '100%',
     overflow: 'hidden',
   },
-  heroOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+  heroHeader: {
     backgroundColor: Colors.primary,
-    zIndex: 1,
-    opacity: 0.85,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    alignItems: 'center',
+  },
+  headerText: {
+    color: Colors.white,
+    fontSize: 20,
+  },
+  heroBackground: {
+    backgroundColor: Colors.white,
+    paddingVertical: Spacing.xxl,
   },
   heroContent: {
-    alignItems: 'center',
     zIndex: 2,
     position: 'relative',
   },
+  heroTextContainer: {
+    alignItems: 'center',
+  },
   heroTitle: {
-    color: Colors.white,
+    color: Colors.dark,
     textAlign: 'center',
     marginBottom: Spacing.md,
-    fontSize: 36,
-    lineHeight: 44,
+    fontSize: 40,
+    lineHeight: 48,
   },
   heroSubtitle: {
     fontSize: 20,
-    color: Colors.white,
+    color: Colors.secondary,
     textAlign: 'center',
     marginBottom: Spacing.xl,
     maxWidth: '80%',
@@ -357,186 +568,250 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     flexWrap: 'wrap',
-    marginTop: Spacing.md,
+    marginTop: Spacing.lg,
   },
   heroButton: {
     marginHorizontal: Spacing.sm,
     marginBottom: Spacing.md,
-    minWidth: 150,
+    minWidth: 160,
+    backgroundColor: Colors.primary,
   },
   heroSecondaryBtn: {
     backgroundColor: 'transparent',
-    borderColor: Colors.white,
+    borderColor: Colors.primary,
     marginHorizontal: Spacing.sm,
     marginBottom: Spacing.md,
-    minWidth: 150,
+    minWidth: 160,
   },
   heroSecondaryBtnText: {
-    color: Colors.white,
+    color: Colors.primary,
   },
-  sectionContainer: {
-    paddingVertical: Spacing.xxl,
+  // Stats Section
+  statsContainer: {
+    backgroundColor: Colors.light,
+    paddingVertical: Spacing.xl,
   },
-  sectionHeading: {
+  statsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    flexWrap: 'wrap',
+  },
+  statItem: {
+    alignItems: 'center',
+    marginHorizontal: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  statNumber: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: Colors.dark,
+    marginBottom: Spacing.xs,
+  },
+  statLabel: {
+    fontSize: 16,
+    color: Colors.secondary,
+  },
+  // Section Styling
+  section: {
+    paddingVertical: Spacing.xl,
+  },
+  sectionHeader: {
     alignItems: 'center',
     marginBottom: Spacing.xl,
   },
   sectionTitle: {
     marginBottom: Spacing.sm,
     textAlign: 'center',
+    fontSize: 32,
   },
   titleUnderline: {
     width: 80,
     height: 4,
     backgroundColor: Colors.primary,
     marginBottom: Spacing.md,
+    borderRadius: 2,
   },
   sectionSubtitle: {
     textAlign: 'center',
     marginBottom: Spacing.lg,
     maxWidth: '80%',
+    color: Colors.secondary,
+    fontSize: 18,
+  },
+  // Services Section
+  servicesSection: {
+    paddingVertical: Spacing.xxl,
+    backgroundColor: Colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
   },
   servicesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: Spacing.xl,
   },
   servicesGridMobile: {
     flexDirection: 'column',
-    marginBottom: Spacing.xl,
+    alignItems: 'center',
+  },
+  serviceCardWrapper: {
+    width: '23%', 
+    marginBottom: Spacing.lg,
+    padding: Spacing.xs,
+  },
+  serviceCardWrapperMobile: {
+    width: '100%',
   },
   serviceCard: {
-    width: '48%',
-    marginBottom: Spacing.lg,
     padding: Spacing.lg,
-    alignItems: 'center',
-    borderRadius: 16,
-    elevation: 4,
+    borderRadius: 8,
+    elevation: 2,
     shadowColor: Colors.dark,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-  },
-  serviceCardMobile: {
-    width: '100%',
-    marginBottom: Spacing.lg,
-    padding: Spacing.lg,
-    alignItems: 'center',
-    borderRadius: 16,
-    elevation: 4,
-    shadowColor: Colors.dark,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.05)',
+    backgroundColor: Colors.white,
+    height: '100%', // Fill the wrapper height
   },
   serviceIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.md,
-    elevation: 4,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
   },
   serviceTitle: {
-    textAlign: 'center',
     marginBottom: Spacing.sm,
+    color: Colors.dark,
+    fontSize: 18,
   },
   serviceDescription: {
-    textAlign: 'center',
+    color: Colors.secondary,
+    marginBottom: Spacing.md,
+    fontSize: 15,
+    lineHeight: 20,
   },
-  servicesButton: {
-    alignSelf: 'center',
-    marginVertical: Spacing.lg,
-    minWidth: 200,
+  learnMoreBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 'auto',
   },
-  howItWorksContainer: {
+  learnMoreText: {
+    color: Colors.primary,
+    marginRight: Spacing.xs,
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  // Features Section
+  featuresSection: {
     paddingVertical: Spacing.xxl,
-    position: 'relative',
-    backgroundColor: '#f0f4f8',
+    backgroundColor: '#f8f9fa',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  featuresGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  featuresGridMobile: {
+    flexDirection: 'column',
+  },
+  featuresGridTablet: {
+    justifyContent: 'space-around',
+  },
+  featureItem: {
+    width: '48%',
+    flexDirection: 'row',
+    marginBottom: Spacing.xl,
+    alignItems: 'flex-start',
+    padding: Spacing.md,
+  },
+  featureIconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(0, 112, 243, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.md,
+  },
+  featureContent: {
+    flex: 1,
+  },
+  featureTitle: {
+    marginBottom: Spacing.xs,
+    color: Colors.dark,
+    fontSize: 18,
+  },
+  featureDescription: {
+    color: Colors.secondary,
+    fontSize: 15,
+    lineHeight: 20,
+  },
+  // How It Works Section
+  howItWorksSection: {
+    paddingVertical: Spacing.xxl,
+    backgroundColor: Colors.white,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0, 0, 0, 0.05)',
   },
   stepsContainer: {
-    marginTop: Spacing.xl,
-    position: 'relative',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: Spacing.md,
+    alignItems: 'flex-start',
+    position: 'relative',
+    padding: Spacing.lg,
   },
   stepsContainerMobile: {
-    marginTop: Spacing.xl,
-    position: 'relative',
     flexDirection: 'column',
-    paddingHorizontal: Spacing.md,
-  },
-  stepConnector: {
-    position: 'absolute',
-    top: '50%',
-    left: '10%',
-    right: '10%',
-    height: 3,
-    backgroundColor: Colors.primary,
-    opacity: 0.3,
-    zIndex: 1,
-  },
-  stepConnectorLine: {
-    position: 'absolute',
-    top: 0,
-    left: '50%',
-    width: 3,
-    height: '100%',
-    backgroundColor: Colors.primary,
-    opacity: 0.3,
-    zIndex: 1,
+    alignItems: 'center',
   },
   step: {
     width: '30%',
     alignItems: 'center',
-    position: 'relative',
-    zIndex: 2,
-    backgroundColor: '#f0f4f8',
-    paddingHorizontal: Spacing.md,
-  },
-  stepMobile: {
-    width: '100%',
-    flexDirection: 'row',
-    marginBottom: Spacing.xl,
-    backgroundColor: 'transparent',
-    paddingHorizontal: 0,
-    position: 'relative',
-    zIndex: 2,
-    alignItems: 'flex-start',
-  },
-  stepContent: {
-    flex: 1,
-    marginLeft: Spacing.md,
+    backgroundColor: Colors.white,
+    padding: Spacing.md,
   },
   stepNumberContainer: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.md,
-    zIndex: 2,
-    elevation: 4,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+  },
+  stepNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: Colors.white,
   },
   stepTitle: {
     marginBottom: Spacing.sm,
     textAlign: 'center',
+    color: Colors.dark,
+    fontSize: 18,
   },
   stepDescription: {
     textAlign: 'center',
+    color: Colors.secondary,
+    lineHeight: 20,
+  },
+  stepConnector: {
+    width: '5%',
+    height: 2,
+    backgroundColor: Colors.primary,
+    alignSelf: 'center',
+    marginTop: 30,
+  },
+  // Testimonials Section
+  testimonialsContainer: {
+    backgroundColor: '#f8f9fa',
   },
   testimonialScroll: {
     marginTop: Spacing.lg,
@@ -546,8 +821,8 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.md,
   },
   testimonialCard: {
-    width: 320,
-    marginRight: Spacing.lg,
+    width: 350,
+    marginHorizontal: Spacing.md,
     padding: Spacing.lg,
     borderRadius: 16,
     elevation: 4,
@@ -555,20 +830,30 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.05)',
+    backgroundColor: Colors.white,
   },
   testimonialAvatar: {
-    fontSize: 60,
+    fontSize: 48,
     marginBottom: Spacing.sm,
     textAlign: 'center',
   },
   testimonialName: {
     marginBottom: Spacing.xs,
     textAlign: 'center',
+    color: Colors.dark,
+  },
+  testimonialRole: {
+    fontSize: 14,
+    color: Colors.secondary,
+    textAlign: 'center',
+    marginBottom: Spacing.sm,
   },
   ratingContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
   },
   starIcon: {
     marginHorizontal: 2,
@@ -576,52 +861,40 @@ const styles = StyleSheet.create({
   testimonialText: {
     fontStyle: 'italic',
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 24,
+    color: Colors.secondary,
   },
-  statsContainer: {
-    backgroundColor: Colors.primary,
-    paddingVertical: Spacing.xxl,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-  },
-  statsGridMobile: {
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  statItem: {
-    width: '24%',
-    alignItems: 'center',
-    paddingVertical: Spacing.lg,
-  },
-  statNumber: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#000000',
-    marginBottom: Spacing.xs,
-  },
-  statLabel: {
-    fontSize: 16,
-    color: '#000000',
-    textAlign: 'center',
-  },
+  // Call to Action Section
   ctaContainer: {
-    backgroundColor: '#0a2463',
+    overflow: 'hidden',
+    width: '100%',
+  },
+  ctaHeader: {
+    backgroundColor: Colors.primary,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    alignItems: 'center',
+  },
+  ctaHeaderText: {
+    color: Colors.white,
+    fontSize: 20,
+  },
+  ctaBackground: {
+    backgroundColor: Colors.white,
     paddingVertical: Spacing.xxl,
   },
   ctaContent: {
     alignItems: 'center',
+    paddingHorizontal: Spacing.lg,
   },
   ctaTitle: {
-    color: '#000000',
+    color: Colors.dark,
     textAlign: 'center',
     marginBottom: Spacing.md,
-    fontSize: 32,
+    fontSize: 36,
   },
   ctaSubtitle: {
-    color: '#000000',
+    color: Colors.secondary,
     textAlign: 'center',
     marginBottom: Spacing.xl,
     fontSize: 18,
@@ -630,26 +903,41 @@ const styles = StyleSheet.create({
   ctaBtnContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
     flexWrap: 'wrap',
-    width: '100%',
-    marginLeft: 'auto',
-    marginRight: 'auto',
   },
   ctaButton: {
     marginHorizontal: Spacing.sm,
     marginBottom: Spacing.md,
     minWidth: 180,
+    backgroundColor: Colors.primary,
   },
   ctaSecondaryBtn: {
     backgroundColor: 'transparent',
-    borderColor: '#4dabf7',
+    borderColor: Colors.primary,
     marginHorizontal: Spacing.sm,
     marginBottom: Spacing.md,
     minWidth: 180,
   },
   ctaSecondaryBtnText: {
-    color: '#4dabf7',
+    color: Colors.primary,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: Colors.primary,
+    marginTop: Spacing.md,
+  },
+  noServicesContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noServicesText: {
+    color: Colors.secondary,
+    marginTop: Spacing.md,
   },
 });
 

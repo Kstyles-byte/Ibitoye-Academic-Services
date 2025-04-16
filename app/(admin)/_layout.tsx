@@ -51,7 +51,6 @@ export default function AdminLayout() {
       <Stack.Screen name="dashboard" />
       <Stack.Screen name="users" />
       <Stack.Screen name="services" />
-      <Stack.Screen name="expert-verification" />
       <Stack.Screen name="requests" />
     </Stack>
   );
