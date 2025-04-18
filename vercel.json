@@ -72,9 +72,9 @@
     }
   },
   "env": {
-    "RESEND_API_KEY": "re_YpaEpyRN_AMSwqBjJtSdv5nqsZcSVrjWs",
+    "RESEND_API_KEY": "re_5Bd9mAPQ_JHc9KoGTLLq65dXZ5tds7ce1",
     "ADMIN_EMAIL": "odoemenakamsy12@gmail.com",
-    "EXPO_PUBLIC_RESEND_API_KEY": "re_YpaEpyRN_AMSwqBjJtSdv5nqsZcSVrjWs",
+    "EXPO_PUBLIC_RESEND_API_KEY": "re_5Bd9mAPQ_JHc9KoGTLLq65dXZ5tds7ce1",
     "EXPO_PUBLIC_ADMIN_EMAIL": "odoemenakamsy12@gmail.com"
   }
 } 

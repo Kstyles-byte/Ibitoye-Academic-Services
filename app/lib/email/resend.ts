@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 
 // Get API key from environment variables with proper Expo prefix for client exposure
 // For Expo, we need to use EXPO_PUBLIC_ prefix for client-accessible env vars
-const API_KEY = process.env.EXPO_PUBLIC_RESEND_API_KEY || process.env.RESEND_API_KEY || 're_YpaEpyRN_AMSwqBjJtSdv5nqsZcSVrjWs';
+const API_KEY = process.env.EXPO_PUBLIC_RESEND_API_KEY || process.env.RESEND_API_KEY || 're_5Bd9mAPQ_JHc9KoGTLLq65dXZ5tds7ce1';
 
 // Initialize Resend with API key, ensuring we don't pass undefined
 const resend = new Resend(API_KEY);
