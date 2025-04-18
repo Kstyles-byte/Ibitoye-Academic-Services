@@ -29,8 +29,8 @@ const firebaseConfig = {
 };
 
 // User credentials
-const email = 'odoemenakamsy12@gmail.com';
-const password = 'Marigold2020$';
+const email = 'engribitoye@gmail.com';
+const password = 'excel777';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

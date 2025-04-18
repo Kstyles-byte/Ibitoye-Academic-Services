@@ -24,8 +24,8 @@ const db = getFirestore();
 const auth = getAuth();
 
 // User credentials
-const email = 'odoemenakamsy12@gmail.com';
-const password = 'Marigold2020$';
+const email = 'engribitoye@gmail.com';
+const password = 'excel777';
 
 async function createOrPromoteAdmin() {
   try {

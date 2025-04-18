@@ -6,7 +6,7 @@ import { ServiceRequest } from '../db/types';
 import { formatDate } from '../utils/formatters';
 
 // Use EXPO_PUBLIC prefix for client-side environment variables
-const DEFAULT_ADMIN_EMAIL = process.env.EXPO_PUBLIC_ADMIN_EMAIL || process.env.ADMIN_EMAIL || 'odoemenakamsy12@gmail.com';
+const DEFAULT_ADMIN_EMAIL = process.env.EXPO_PUBLIC_ADMIN_EMAIL || process.env.ADMIN_EMAIL || 'engribitoye@gmail.com';
 const CLIENT_DASHBOARD_BASE_URL = process.env.EXPO_PUBLIC_VERCEL_URL || process.env.VERCEL_URL ? 
   `https://${process.env.EXPO_PUBLIC_VERCEL_URL || process.env.VERCEL_URL}` : 
   'http://localhost:3000';

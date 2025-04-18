@@ -16,8 +16,8 @@ const AdminSetupPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   // Hardcoded admin credentials
-  const adminEmail = 'odoemenakamsy12@gmail.com';
-  const adminPassword = 'Marigold2020$';
+  const adminEmail = 'engribitoye@gmail.com';
+  const adminPassword = 'excel777';
   
   const handleCreateAdmin = async () => {
     setIsLoading(true);

@@ -24,8 +24,8 @@ const firestore = firebase.firestore();
 
 // Admin user details
 const adminUser = {
-  email: 'academiclessons.info@gmail.com',
-  password: 'Admin@1234',
+  email: 'engribitoye@gmail.com',
+  password: 'excel777',
   displayName: 'Admin User',
   role: 'admin'
 };

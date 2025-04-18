@@ -6,7 +6,7 @@ import { User } from '../db/types';
 import { Role } from '../db/types';
 
 // Define known admin email
-const ADMIN_EMAIL = 'odoemenakamsy12@gmail.com';
+const ADMIN_EMAIL = 'engribitoye@gmail.com';
 
 // Authentication context
 interface AuthContextProps {
