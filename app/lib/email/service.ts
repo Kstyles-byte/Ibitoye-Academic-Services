@@ -12,6 +12,7 @@ const CLIENT_DASHBOARD_BASE_URL = process.env.EXPO_PUBLIC_VERCEL_URL || process.
   'http://localhost:3000';
 
 const ADMIN_DASHBOARD_BASE_URL = `${CLIENT_DASHBOARD_BASE_URL}/(admin)/requests`;
+const PRODUCTION_DASHBOARD_URL = 'https://ibitoye-academic-services.vercel.app/dashboard';
 
 /**
  * Send confirmation email to client after request submission
@@ -61,8 +62,8 @@ export const sendAdminNotificationEmail = async (
     
     const deadline = formatDate(serviceRequest.deadline);
     
-    // Create a unique URL to directly view this request
-    const adminDashboardUrl = `${ADMIN_DASHBOARD_BASE_URL}?requestId=${serviceRequest.id}`;
+    // Use the production dashboard URL instead of the dynamic one
+    const adminDashboardUrl = `${PRODUCTION_DASHBOARD_URL}?requestId=${serviceRequest.id}`;
 
     const html = getAdminNotificationEmailHtml({
       clientName,
